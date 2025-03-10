@@ -1,0 +1,49 @@
+.container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f5;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGcgZmlsbD0iIzEzQTEwRSIgZmlsbC1vcGFjaXR5PSIwLjA1Ij48cGF0aCBkPSJNMCAwIGgyMCB2MjAgaC0yMHoiPjwvcGF0aD48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI1Ij48L2NpcmNsZT48L2c+PC9zdmc+');
+}
+
+.card {
+  width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.logo img {
+  width: 80px;
+}
+
+.title {
+  text-align: center;
+  color: #07c160;
+  margin-bottom: 30px !important;
+}
+
+.form {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.register {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.loginButton {
+  background-color: #07c160;
+  border-color: #07c160;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 10px;
+}

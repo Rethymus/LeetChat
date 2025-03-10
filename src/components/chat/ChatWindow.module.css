@@ -1,0 +1,51 @@
+.chatWindow {
+  height: 100%;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 0 16px;
+  height: 60px;
+  line-height: 60px;
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.messageContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background-color: #ebebeb;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAPCAIAAABxmg+NAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAOUlEQVQ4y2P8//8/A7UBEwOVwaiBDAwMjIyMROrA5ZgYqA9GDRw1cNTAYWAgx7kM1E8fxIccZQ0EAOJ0Rvn4/BDiAAAAAElFTkSuQmCC');
+}
+
+.footer {
+  padding: 10px 16px;
+  background-color: #fff;
+  border-top: 1px solid #e6e6e6;
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.notFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 16px;
+  color: #999;
+}
+
+.chatHeaderContainer {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}

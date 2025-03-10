@@ -1,0 +1,104 @@
+.sidebar {
+  width: 80px;
+  background-color: #2e3238;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #d4d4d4;
+  z-index: 10;
+}
+
+.profile {
+  padding: 20px 0;
+  text-align: center;
+}
+
+.avatar {
+  cursor: pointer;
+  background-color: #07c160;
+}
+
+.menu {
+  flex: 1;
+  background: transparent;
+  border-right: none;
+}
+
+.menu :global(.ant-menu-item) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 60px;
+  margin: 10px 0;
+  color: #fff;
+}
+
+.menu :global(.ant-menu-item-icon) {
+  font-size: 22px;
+  margin: 0 0 5px;
+}
+
+.menu :global(.ant-menu-title-content) {
+  font-size: 12px;
+}
+
+.menu :global(.ant-menu-item-selected) {
+  background-color: #3a3f45 !important;
+  color: #07c160;
+}
+
+.footer {
+  padding: 20px 0;
+  text-align: center;
+}
+
+.logout {
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+}
+
+.logout:hover {
+  color: #f56c6c;
+}
+
+/* 移动端样式 */
+.mobileNav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #e8e8e8;
+  background-color: #fff;
+  z-index: 10;
+  height: 60px;
+}
+
+.mobileMenu {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.mobileMenu :global(.ant-menu-item) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 !important;
+  margin: 0 !important;
+  flex: 1;
+  height: 60px !important;
+}
+
+.mobileMenu :global(.ant-menu-title-content) {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.mobileMenu :global(.ant-menu-item-icon) {
+  font-size: 22px;
+  margin-right: 0 !important;
+}
+
+.mobileMenu :global(.ant-menu-item-selected) {
+  color: #07c160 !important;
+}
