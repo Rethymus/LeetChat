@@ -1,11 +1,13 @@
 # LeetChat
 
 <div align="center">
-  <a href="javascript:void(0)" onclick="switchLanguage('zh')" id="zh-link" style="font-weight: bold;">简体中文</a> | 
-  <a href="javascript:void(0)" onclick="switchLanguage('en')" id="en-link">English</a>
+  <a href="#zh">简体中文</a> | 
+  <a href="#en">English</a>
 </div>
 
-<div id="readme-content-zh">
+---
+
+<h2 id="zh">简体中文</h2>
 
 ## 项目介绍
 
@@ -113,9 +115,7 @@ npm run build
 
 该项目采用 MIT 协议 - 查看 LICENSE 文件了解详情
 
-</div>
-
-<div id="readme-content-en" style="display:none">
+<h2 id="en">English</h2>
 
 ## Introduction
 
@@ -222,26 +222,3 @@ npm run build
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details
-
-</div>
-
-<script>
-function switchLanguage(lang) {
-  // Hide all content
-  document.getElementById('readme-content-zh').style.display = 'none';
-  document.getElementById('readme-content-en').style.display = 'none';
-  // Show selected language content
-  document.getElementById(`readme-content-${lang}`).style.display = 'block';
-  // Update link styles
-  document.getElementById('zh-link').style.fontWeight = lang === 'zh' ? 'bold' : 'normal';
-  document.getElementById('en-link').style.fontWeight = lang === 'en' ? 'bold' : 'normal';
-  // Store preference in localStorage
-  localStorage.setItem('leetchat-readme-lang', lang);
-}
-
-// Initialize with preferred or default language
-document.addEventListener('DOMContentLoaded', function() {
-  const savedLang = localStorage.getItem('leetchat-readme-lang') || 'zh';
-  switchLanguage(savedLang);
-});
-</script>
