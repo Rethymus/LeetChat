@@ -111,10 +111,6 @@ npm run build
 4. 推送到分支 (git push origin feature/amazing-feature)
 5. 打开一个 Pull Request
 
-## 协议
-
-该项目采用 MIT 协议 - 查看 LICENSE 文件了解详情
-
 <h2 id="en">English</h2>
 
 ## Introduction
@@ -218,7 +214,3 @@ npm run build
 3. Commit your changes (git commit -m 'Add some amazing feature')
 4. Push to the branch (git push origin feature/amazing-feature)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details
