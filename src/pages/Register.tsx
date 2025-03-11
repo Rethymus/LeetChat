@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Typography, message, Row, Col } from 'antd';
-import { UserOutlined, LockOutlined, MobileOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
-import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../store/slices/authSlice';
-import { userApi } from '../api/user';
-import styles from './Login.module.css'; // 共用登录样式
+import React, { useState, useEffect } from "react";
+import { Form, Input, Button, Card, Typography, message, Row, Col } from "antd";
+import {
+  UserOutlined,
+  LockOutlined,
+  MobileOutlined,
+  MailOutlined,
+  SafetyCertificateOutlined,
+} from "@ant-design/icons";
+import { useNavigate, Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../store/slices/authSlice";
+import { userApi } from "../api/user";
+import styles from "./Login.module.css"; // 共用登录样式
 
 const { Title } = Typography;
 
@@ -37,45 +43,47 @@ const Register: React.FC = () => {
     try {
       // 确保两次密码一致
       if (values.password !== values.confirmPassword) {
-        return message.error('两次输入的密码不一致');
+        return message.error("两次输入的密码不一致");
       }
 
       setLoading(true);
-      
+
       // 调用注册API
       const response = await userApi.register({
         phone: values.phone,
         email: values.email,
         msgcode: values.msgcode,
         password: values.password,
-        nickname: values.nickname
+        nickname: values.nickname,
       });
-      
+
       // 存储token和过期信息
-      localStorage.setItem('token', response.accessToken);
-      localStorage.setItem('accessExpire', String(response.accessExpire));
-      localStorage.setItem('refreshAfter', String(response.refreshAfter));
-      
+      localStorage.setItem("token", response.accessToken);
+      localStorage.setItem("accessExpire", String(response.accessExpire));
+      localStorage.setItem("refreshAfter", String(response.refreshAfter));
+
       // 获取用户信息
       const userInfoResponse = await userApi.getUserInfo();
       const userInfo = userInfoResponse.userInfo;
-      
-      dispatch(loginSuccess({ 
-        user: {
-          id: String(userInfo.id),
-          username: userInfo.nickname,
-          phone: userInfo.phone,
-          email: userInfo.email,
-          avatar: '' // 初始化空头像，后续获取Profile可更新
-        }, 
-        token: response.accessToken 
-      }));
-      
-      message.success('注册成功，已自动登录');
-      navigate('/chat');
+
+      dispatch(
+        loginSuccess({
+          user: {
+            id: String(userInfo.id),
+            username: userInfo.nickname,
+            phone: userInfo.phone,
+            email: userInfo.email,
+            avatar: "", // 初始化空头像，后续获取Profile可更新
+          },
+          token: response.accessToken,
+        }),
+      );
+
+      message.success("注册成功，已自动登录");
+      navigate("/chat");
     } catch (error) {
-      console.error('注册失败:', error);
-      message.error('注册失败，请检查输入信息或稍后重试');
+      console.error("注册失败:", error);
+      message.error("注册失败，请检查输入信息或稍后重试");
     } finally {
       setLoading(false);
     }
@@ -84,21 +92,21 @@ const Register: React.FC = () => {
   // 发送短信验证码
   const handleSendCode = async () => {
     try {
-      const phone = form.getFieldValue('phone');
+      const phone = form.getFieldValue("phone");
       if (!phone) {
-        return message.error('请输入手机号');
+        return message.error("请输入手机号");
       }
-      
+
       await userApi.getMessageCode({
-        msgType: 'register',
-        phone
+        msgType: "register",
+        phone,
       });
-      
-      message.success('验证码发送成功');
+
+      message.success("验证码发送成功");
       setCountdown(60);
     } catch (error) {
-      console.error('发送验证码失败:', error);
-      message.error('发送验证码失败，请稍后重试');
+      console.error("发送验证码失败:", error);
+      message.error("发送验证码失败，请稍后重试");
     }
   };
 
@@ -108,8 +116,10 @@ const Register: React.FC = () => {
         <div className={styles.logo}>
           <img src="/leetchat-logo.png" alt="LeetChat Logo" />
         </div>
-        <Title level={2} className={styles.title}>注册账号</Title>
-        
+        <Title level={2} className={styles.title}>
+          注册账号
+        </Title>
+
         <Form
           form={form}
           name="register"
@@ -121,8 +131,8 @@ const Register: React.FC = () => {
           <Form.Item
             name="phone"
             rules={[
-              { required: true, message: '请输入手机号' },
-              { pattern: /^1\d{10}$/, message: '手机号格式不正确' }
+              { required: true, message: "请输入手机号" },
+              { pattern: /^1\d{10}$/, message: "手机号格式不正确" },
             ]}
           >
             <Input prefix={<MobileOutlined />} placeholder="手机号" />
@@ -131,88 +141,70 @@ const Register: React.FC = () => {
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: '请输入邮箱' },
-              { type: 'email', message: '邮箱格式不正确' }
+              { required: true, message: "请输入邮箱" },
+              { type: "email", message: "邮箱格式不正确" },
             ]}
           >
             <Input prefix={<MailOutlined />} placeholder="邮箱" />
           </Form.Item>
 
-          <Form.Item
-            name="msgcode"
-            rules={[{ required: true, message: '请输入验证码' }]}
-          >
+          <Form.Item name="msgcode" rules={[{ required: true, message: "请输入验证码" }]}>
             <Row gutter={8}>
               <Col flex="auto">
-                <Input
-                  prefix={<SafetyCertificateOutlined />}
-                  placeholder="验证码"
-                />
+                <Input prefix={<SafetyCertificateOutlined />} placeholder="验证码" />
               </Col>
               <Col flex="none">
-                <Button 
-                  onClick={handleSendCode}
-                  disabled={countdown > 0}
-                >
-                  {countdown > 0 ? `${countdown}s` : '获取验证码'}
+                <Button onClick={handleSendCode} disabled={countdown > 0}>
+                  {countdown > 0 ? `${countdown}s` : "获取验证码"}
                 </Button>
               </Col>
             </Row>
           </Form.Item>
 
-          <Form.Item
-            name="nickname"
-            rules={[{ required: false, message: '请输入昵称' }]}
-          >
+          <Form.Item name="nickname" rules={[{ required: false, message: "请输入昵称" }]}>
             <Input prefix={<UserOutlined />} placeholder="昵称（选填）" />
           </Form.Item>
 
           <Form.Item
             name="password"
             rules={[
-              { required: true, message: '请输入密码' },
-              { min: 6, message: '密码至少6个字符' }
+              { required: true, message: "请输入密码" },
+              { min: 6, message: "密码至少6个字符" },
             ]}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="密码"
-            />
+            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
           </Form.Item>
 
           <Form.Item
             name="confirmPassword"
-            dependencies={['password']}
+            dependencies={["password"]}
             rules={[
-              { required: true, message: '请确认密码' },
+              { required: true, message: "请确认密码" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
+                  if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('两次输入的密码不一致'));
+                  return Promise.reject(new Error("两次输入的密码不一致"));
                 },
               }),
             ]}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="确认密码"
-            />
+            <Input.Password prefix={<LockOutlined />} placeholder="确认密码" />
           </Form.Item>
 
           <Form.Item>
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              block 
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
               className={styles.loginButton}
               loading={loading}
             >
               注册
             </Button>
           </Form.Item>
-          
+
           <div className={styles.footer}>
             <Link to="/login">返回登录</Link>
           </div>

@@ -40,14 +40,14 @@
   .chatLayout {
     flex-direction: column;
   }
-  
+
   .sider {
     width: 100% !important; /* 覆盖Ant Design的内联样式 */
     max-width: 100%;
     flex: none;
     height: 100%;
   }
-  
+
   .content {
     display: none;
   }

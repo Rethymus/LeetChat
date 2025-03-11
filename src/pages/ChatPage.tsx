@@ -22,12 +22,12 @@ const mockChats = [
       content: "你好，最近怎么样？",
       type: "text",
       status: "read",
-      createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString() // 5分钟前
+      createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5分钟前
     },
     unreadCount: 0,
     members: [],
     createdAt: "",
-    updatedAt: ""
+    updatedAt: "",
   },
   {
     id: "2",
@@ -41,38 +41,38 @@ const mockChats = [
       content: "下午3点开会讨论方案",
       type: "text",
       status: "read",
-      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() // 30分钟前
+      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30分钟前
     },
     unreadCount: 2,
     members: [],
     createdAt: "",
-    updatedAt: ""
-  }
+    updatedAt: "",
+  },
 ];
 
 const ChatPage: React.FC = () => {
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
   if (isMobile && chatId) {
     // 移动端聊天详情视图
     return (
       <div className={styles.mobileChatView}>
         <div className={styles.mobileHeader}>
-          <Button 
-            type="text" 
-            icon={<ArrowLeftOutlined />} 
-            onClick={() => navigate('/chat')}
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate("/chat")}
             className={styles.backButton}
           />
         </div>
@@ -80,29 +80,21 @@ const ChatPage: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <Layout className={styles.chatLayout}>
-      <Sider 
-        width={isMobile ? "100%" : 300} 
-        className={styles.sider} 
+      <Sider
+        width={isMobile ? "100%" : 300}
+        className={styles.sider}
         theme="light"
         breakpoint="lg"
         collapsedWidth={isMobile ? 0 : 80}
       >
-        <ChatList
-          chats={mockChats}
-          loading={false}
-          activeChatId={chatId}
-        />
+        <ChatList chats={mockChats} loading={false} activeChatId={chatId} />
       </Sider>
       {(!isMobile || !chatId) && (
         <Content className={styles.content}>
-          {chatId ? (
-            <ChatWindow chatId={chatId} />
-          ) : (
-            <Empty description="选择聊天或开始新的对话" />
-          )}
+          {chatId ? <ChatWindow chatId={chatId} /> : <Empty description="选择聊天或开始新的对话" />}
         </Content>
       )}
     </Layout>

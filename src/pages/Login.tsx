@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Card,
-  Typography,
-  message,
-  Tabs,
-  Row,
-  Col,
-} from "antd";
+import { Form, Input, Button, Card, Typography, message, Tabs, Row, Col } from "antd";
 import {
   UserOutlined,
   LockOutlined,
@@ -19,11 +9,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-} from "../store/slices/authSlice";
+import { loginStart, loginSuccess, loginFailure } from "../store/slices/authSlice";
 import { userApi } from "../api/user";
 import styles from "./Login.module.css";
 import { useCaptcha } from "../hooks/useCaptcha";
@@ -46,20 +32,13 @@ interface MessageLoginValues {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [loginType, setLoginType] = useState<"password" | "message">(
-    "password"
-  );
+  const [loginType, setLoginType] = useState<"password" | "message">("password");
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
-  const {
-    captcha,
-    shouldShowCaptcha,
-    getCaptchaImage,
-    recordLoginFail,
-    resetFailCount,
-  } = useCaptcha(form);
+  const { captcha, shouldShowCaptcha, getCaptchaImage, recordLoginFail, resetFailCount } =
+    useCaptcha(form);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -74,11 +53,44 @@ const Login: React.FC = () => {
   }, []);
 
   // 修改密码登录处理函数
-  const handlePasswordLogin = async (
-    values: PasswordLoginValues & { captcha?: number[] }
-  ) => {
+  const handlePasswordLogin = async (values: PasswordLoginValues & { captcha?: number[] }) => {
     try {
       setLoading(true);
+
+      // 添加：测试账号硬编码处理
+      if (values.phone === "root" && values.password === "root") {
+        console.log("测试账号登录");
+
+        // 模拟数据
+        const testUser = {
+          id: "test-001",
+          username: "测试账号",
+          nickname: "测试账号",
+          phone: "root",
+          email: "test@example.com",
+          avatar: "https://randomuser.me/api/portraits/lego/1.jpg",
+        };
+
+        // 存储token
+        localStorage.setItem("token", "test-token-12345");
+
+        dispatch(
+          loginSuccess({
+            user: {
+              id: testUser.id,
+              username: testUser.nickname,
+              phone: testUser.phone,
+              email: testUser.email,
+              avatar: testUser.avatar,
+            },
+            token: "test-token-12345",
+          }),
+        );
+
+        message.success("测试账号登录成功");
+        navigate("/chat");
+        return;
+      }
 
       // 如果需要验证码，则先验证
       if (shouldShowCaptcha && values.captcha) {
@@ -119,7 +131,7 @@ const Login: React.FC = () => {
             avatar: "", // 初始化空头像，后续获取Profile可更新
           },
           token: response.accessToken,
-        })
+        }),
       );
 
       message.success("登录成功");
@@ -165,7 +177,7 @@ const Login: React.FC = () => {
             avatar: "", // 初始化空头像，后续获取Profile可更新
           },
           token: response.accessToken,
-        })
+        }),
       );
 
       message.success("登录成功");
@@ -228,25 +240,26 @@ const Login: React.FC = () => {
                 name="phone"
                 rules={[
                   { required: true, message: "请输入手机号" },
-                  { pattern: /^1\d{10}$/, message: "手机号格式不正确" },
+                  {
+                    validator: (_, value) => {
+                      if (value === "root" || /^1\d{10}$/.test(value)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error("手机号格式不正确"));
+                    },
+                  },
                 ]}
               >
                 <Input prefix={<MobileOutlined />} placeholder="手机号" />
               </Form.Item>
 
-              <Form.Item
-                name="password"
-                rules={[{ required: true, message: "请输入密码" }]}
-              >
+              <Form.Item name="password" rules={[{ required: true, message: "请输入密码" }]}>
                 <Input.Password prefix={<LockOutlined />} placeholder="密码" />
               </Form.Item>
 
               {/* 添加验证码 */}
               {shouldShowCaptcha && (
-                <Form.Item
-                  name="captcha"
-                  rules={[{ required: true, message: "请完成验证" }]}
-                >
+                <Form.Item name="captcha" rules={[{ required: true, message: "请完成验证" }]}>
                   <CaptchaVerify
                     form={form}
                     imageBase64={captcha.imageBase64}
@@ -283,22 +296,23 @@ const Login: React.FC = () => {
                 name="phone"
                 rules={[
                   { required: true, message: "请输入手机号" },
-                  { pattern: /^1\d{10}$/, message: "手机号格式不正确" },
+                  {
+                    validator: (_, value) => {
+                      if (value === "root" || /^1\d{10}$/.test(value)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error("手机号格式不正确"));
+                    },
+                  },
                 ]}
               >
                 <Input prefix={<MobileOutlined />} placeholder="手机号" />
               </Form.Item>
 
-              <Form.Item
-                name="msgcode"
-                rules={[{ required: true, message: "请输入验证码" }]}
-              >
+              <Form.Item name="msgcode" rules={[{ required: true, message: "请输入验证码" }]}>
                 <Row gutter={8}>
                   <Col flex="auto">
-                    <Input
-                      prefix={<SafetyCertificateOutlined />}
-                      placeholder="验证码"
-                    />
+                    <Input prefix={<SafetyCertificateOutlined />} placeholder="验证码" />
                   </Col>
                   <Col flex="none">
                     <Button onClick={handleSendCode} disabled={countdown > 0}>

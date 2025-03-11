@@ -16,7 +16,7 @@ const mockChats = {
     type: "private" as const,
     members: [],
     createdAt: "",
-    updatedAt: ""
+    updatedAt: "",
   },
   "2": {
     id: "2",
@@ -25,8 +25,8 @@ const mockChats = {
     type: "group" as const,
     members: [],
     createdAt: "",
-    updatedAt: ""
-  }
+    updatedAt: "",
+  },
 };
 
 const mockMessages = {
@@ -38,7 +38,7 @@ const mockMessages = {
       content: "嗨，你好！",
       type: "text" as const,
       status: "read" as const,
-      createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString() // 1小时前
+      createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1小时前
     },
     {
       id: "1-2",
@@ -47,7 +47,7 @@ const mockMessages = {
       content: "你好啊，最近怎么样？",
       type: "text" as const,
       status: "read" as const,
-      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() // 30分钟前
+      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30分钟前
     },
     {
       id: "1-3",
@@ -56,8 +56,8 @@ const mockMessages = {
       content: "我很好，谢谢关心。你呢？",
       type: "text" as const,
       status: "read" as const,
-      createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString() // 5分钟前
-    }
+      createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5分钟前
+    },
   ],
   "2": [
     {
@@ -67,7 +67,7 @@ const mockMessages = {
       content: "大家好，下午3点开会",
       type: "text" as const,
       status: "read" as const,
-      createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString() // 2小时前
+      createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(), // 2小时前
     },
     {
       id: "2-2",
@@ -76,7 +76,7 @@ const mockMessages = {
       content: "好的，我会准时参加",
       type: "text" as const,
       status: "read" as const,
-      createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString() // 1.5小时前
+      createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(), // 1.5小时前
     },
     {
       id: "2-3",
@@ -85,10 +85,20 @@ const mockMessages = {
       content: "收到，我也会准时到场",
       type: "text" as const,
       status: "read" as const,
-      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString() // 30分钟前
-    }
-  ]
+      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30分钟前
+    },
+  ],
 };
+
+interface Message {
+  id: string;
+  chatId: string;
+  senderId: string;
+  content: string;
+  type: "text" | "image" | "file" | "system";
+  status: "read" | "sent" | "delivered";
+  createdAt: string;
+}
 
 interface ChatWindowProps {
   chatId: string;
@@ -96,20 +106,22 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ chatId }) => {
   const chat = mockChats[chatId as keyof typeof mockChats];
-  const [messageList, setMessageList] = useState(mockMessages[chatId as keyof typeof mockMessages] || []);
+  const [messageList, setMessageList] = useState<Message[]>(
+    mockMessages[chatId as keyof typeof mockMessages] || [],
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messageList]);
-  
+
   useEffect(() => {
     setMessageList(mockMessages[chatId as keyof typeof mockMessages] || []);
   }, [chatId]);
-  
+
   const handleSendMessage = (content: string, type: string = "text") => {
     console.log(`发送消息到 ${chatId}:`, content, type);
-    
+
     // 添加新消息到列表
     const newMessage = {
       id: `${chatId}-${Date.now()}`,
@@ -118,16 +130,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chatId }) => {
       content,
       type: type as "text" | "image" | "file" | "system",
       status: "sent" as const,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
-    
-    setMessageList(prev => [...prev, newMessage]);
+
+    setMessageList((prev) => [...prev, newMessage]);
   };
-  
+
   if (!chat) {
     return <div className={styles.notFound}>聊天不存在</div>;
   }
-  
+
   return (
     <Layout className={styles.chatWindow}>
       <Header className={styles.header}>

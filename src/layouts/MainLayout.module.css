@@ -14,7 +14,7 @@
   .layout {
     flex-direction: column;
   }
-  
+
   .content {
     height: calc(100vh - 60px); /* 调整为减去底部导航栏的高度 */
   }

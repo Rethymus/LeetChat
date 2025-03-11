@@ -3,14 +3,14 @@ export interface User {
   username: string;
   avatar: string;
   nickname?: string;
-  status?: 'online' | 'offline';
+  status?: "online" | "offline";
 }
 
 export interface Chat {
   id: string;
   name?: string;
   avatar?: string;
-  type: 'private' | 'group';
+  type: "private" | "group";
   lastMessage?: Message;
   unreadCount?: number;
   members: User[];
@@ -23,8 +23,8 @@ export interface Message {
   chatId: string;
   senderId: string;
   content: string;
-  type: 'text' | 'image' | 'file' | 'system';
-  status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+  type: "text" | "image" | "file" | "system";
+  status: "sending" | "sent" | "delivered" | "read" | "failed";
   createdAt: string;
 }
 

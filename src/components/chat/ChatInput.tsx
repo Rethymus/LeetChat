@@ -1,11 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Input, Button, Tooltip, Upload } from "antd";
-import { 
-  SmileOutlined, 
-  PictureOutlined, 
-  FolderOutlined,
-  SendOutlined
-} from "@ant-design/icons";
+import { SmileOutlined, PictureOutlined, FolderOutlined, SendOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd";
 import styles from "./ChatInput.module.css";
 
@@ -21,7 +16,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, chatId }) => {
 
   const handleSend = () => {
     if (!message.trim()) return;
-    
+
     onSendMessage(message.trim(), "text");
     setMessage("");
     inputRef.current?.focus();
@@ -55,27 +50,20 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, chatId }) => {
         <Tooltip title="表情">
           <SmileOutlined className={styles.toolbarIcon} />
         </Tooltip>
-        
-        <Upload 
-          accept="image/*" 
-          showUploadList={false} 
-          beforeUpload={handleImageUpload as any}
-        >
+
+        <Upload accept="image/*" showUploadList={false} beforeUpload={handleImageUpload as any}>
           <Tooltip title="图片">
             <PictureOutlined className={styles.toolbarIcon} />
           </Tooltip>
         </Upload>
-        
-        <Upload 
-          showUploadList={false} 
-          beforeUpload={handleFileUpload as any}
-        >
+
+        <Upload showUploadList={false} beforeUpload={handleFileUpload as any}>
           <Tooltip title="文件">
             <FolderOutlined className={styles.toolbarIcon} />
           </Tooltip>
         </Upload>
       </div>
-      
+
       <div className={styles.inputWrapper}>
         <Input.TextArea
           ref={inputRef}
@@ -88,7 +76,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, chatId }) => {
           autoSize={{ minRows: 1, maxRows: 4 }}
           className={styles.messageInput}
         />
-        
+
         <Button
           type="primary"
           icon={<SendOutlined />}
