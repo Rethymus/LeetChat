@@ -1,0 +1,54 @@
+.contactsPage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.searchInput {
+  margin-right: 12px;
+  flex: 1;
+}
+
+.contactsList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.contactItem {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.contactItem:hover {
+  background-color: #f5f5f5;
+}
+
+.username {
+  font-size: 12px;
+  color: #999;
+  margin-left: 8px;
+}
+
+.status {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.online {
+  color: #07c160;
+}
+
+.offline {
+  color: #999;
+}

@@ -1,0 +1,21 @@
+.layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+.content {
+  flex: 1;
+  background-color: #f5f5f5;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+  
+  .content {
+    height: calc(100vh - 60px); /* 调整为减去底部导航栏的高度 */
+  }
+}

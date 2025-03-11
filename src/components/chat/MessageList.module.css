@@ -1,0 +1,147 @@
+.messageList {
+  padding: 10px 0;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.emptyMessage {
+  color: #999;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.dateDivider {
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+  margin: 16px 0;
+  position: relative;
+}
+
+.dateDivider:before,
+.dateDivider:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: calc(50% - 60px);
+  height: 1px;
+  background-color: #ddd;
+}
+
+.dateDivider:before {
+  left: 0;
+}
+
+.dateDivider:after {
+  right: 0;
+}
+
+.messageItem {
+  display: flex;
+  margin-bottom: 4px;
+  align-items: flex-start;
+}
+
+.leftAlign {
+  justify-content: flex-start;
+}
+
+.rightAlign {
+  justify-content: flex-end;
+}
+
+.avatar {
+  margin: 0 8px;
+  background-color: #07c160;
+}
+
+.messageBubble {
+  max-width: 60%;
+  padding: 10px 16px;
+  border-radius: 3px;
+  word-break: break-word;
+}
+
+.myMessage {
+  background-color: #95ec69; /* 微信绿 */
+  position: relative;
+}
+
+.myMessage:before {
+  content: "";
+  position: absolute;
+  right: -8px;
+  top: 12px;
+  border-style: solid;
+  border-width: 8px 0 8px 8px;
+  border-color: transparent transparent transparent #95ec69;
+}
+
+.otherMessage {
+  background-color: #ffffff;
+  position: relative;
+}
+
+.otherMessage:before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 12px;
+  border-style: solid;
+  border-width: 8px 8px 8px 0;
+  border-color: transparent #ffffff transparent transparent;
+}
+
+.textContent {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.imageContent {
+  cursor: pointer;
+}
+
+.fileContent {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  border-radius: 3px;
+}
+
+.messageTime {
+  font-size: 12px;
+  color: #999;
+  margin: 2px 20px 12px;
+  padding-left: 44px;
+}
+
+.rightAlign.messageTime {
+  text-align: right;
+  padding-right: 44px;
+  padding-left: 0;
+}
+
+.messageStatus {
+  margin-left: 5px;
+  color: #999;
+}
+
+.systemMessageContainer {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.systemMessage {
+  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #999;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 10px;
+}
