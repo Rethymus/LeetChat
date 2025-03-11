@@ -48,10 +48,32 @@ const ProfilePage: React.FC = () => {
   };
 
   // 处理个人信息编辑
-  const handleEditSubmit = (values: any) => {
-    console.log('更新个人信息:', values);
-    message.success('个人信息更新成功');
-    setIsEditModalVisible(false);
+  const handleEditSubmit = async (values: any) => {
+    try {
+      // 更新用户昵称
+      await userApi.updateUserName({
+        nickname: values.nickname
+      });
+      
+      // 更新其他资料信息
+      await userApi.updateUserProfile({
+        avatar_url: user.avatar || '', 
+        birthday: values.birthday || Date.now(),
+        gender: values.gender || 'male',
+        location: values.location || ''
+      });
+      
+      message.success('个人信息更新成功');
+      setIsEditModalVisible(false);
+      
+      // 刷新用户信息
+      const userInfoResponse = await userApi.getUserInfo();
+      const profileResponse = await userApi.getUserProfile();
+      // 更新Redux store...
+    } catch (error) {
+      console.error('更新个人信息失败:', error);
+      message.error('更新失败，请稍后重试');
+    }
   };
 
   // 处理密码修改
@@ -82,6 +104,24 @@ const ProfilePage: React.FC = () => {
         message.success('聊天记录已清空');
       }
     });
+  };
+
+  // 在getUserInfo后添加获取用户资料的逻辑
+  const handleGetUserProfile = async () => {
+    try {
+      // 获取用户的详细资料
+      const profileResponse = await userApi.getUserProfile();
+      
+      // 更新Redux中的用户信息，增加头像等信息
+      dispatch(updateUserProfile({
+        avatar: profileResponse.userProfile.avatar_url,
+        gender: profileResponse.userProfile.gender,
+        birthday: profileResponse.userProfile.birthday,
+        location: profileResponse.userProfile.location
+      }));
+    } catch (error) {
+      console.error('获取用户资料失败:', error);
+    }
   };
 
   const settingsItems = [
