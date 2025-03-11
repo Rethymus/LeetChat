@@ -61,11 +61,7 @@ const CaptchaVerify: React.FC<CaptchaVerifyProps> = ({
           </div>
         )}
       </div>
-      <Button
-        icon={<ReloadOutlined />}
-        onClick={resetCaptcha}
-        className={styles.refreshCaptcha}
-      >
+      <Button icon={<ReloadOutlined />} onClick={resetCaptcha} className={styles.refreshCaptcha}>
         刷新验证码
       </Button>
 
