@@ -1,11 +1,6 @@
 import React from "react";
 import { Menu, Avatar, Badge, Tooltip } from "antd";
-import { 
-  MessageOutlined, 
-  TeamOutlined, 
-  UserOutlined,
-  LogoutOutlined
-} from "@ant-design/icons";
+import { MessageOutlined, TeamOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import styles from "./Sidebar.module.css";
@@ -19,15 +14,19 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ selectedKey, onSelectMenu, isMobile = false }) => {
   const dispatch = useDispatch();
   const user = useSelector((state: any) => state.auth.user);
-  
+
   const handleLogout = () => {
     dispatch(logout());
   };
-  
+
   const menuItems = [
     {
       key: "chat",
-      icon: <Badge dot offset={[5, 0]}><MessageOutlined /></Badge>,
+      icon: (
+        <Badge dot offset={[5, 0]}>
+          <MessageOutlined />
+        </Badge>
+      ),
       label: "聊天",
     },
     {
@@ -39,9 +38,9 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedKey, onSelectMenu, isMobile =
       key: "profile",
       icon: <UserOutlined />,
       label: "我的",
-    }
+    },
   ];
-  
+
   if (isMobile) {
     return (
       <div className={styles.mobileNav}>
@@ -55,16 +54,11 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedKey, onSelectMenu, isMobile =
       </div>
     );
   }
-  
+
   return (
     <div className={styles.sidebar}>
       <div className={styles.profile}>
-        <Avatar 
-          size={64} 
-          src={user?.avatar} 
-          className={styles.avatar}
-          icon={<UserOutlined />}
-        />
+        <Avatar size={64} src={user?.avatar} className={styles.avatar} icon={<UserOutlined />} />
       </div>
       <Menu
         mode="inline"

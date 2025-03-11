@@ -7,7 +7,7 @@ interface Chat {
   id: string;
   name?: string;
   avatar?: string;
-  type: 'private' | 'group';
+  type: "private" | "group";
   members: any[];
   createdAt: string;
   updatedAt: string;
@@ -21,17 +21,17 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat }) => {
   return (
     <div className={styles.chatHeaderContainer}>
       <Space>
-        <Avatar 
-          src={chat.avatar} 
+        <Avatar
+          src={chat.avatar}
           icon={chat.type === "private" ? <UserOutlined /> : <TeamOutlined />}
         />
         <Typography.Title level={5} style={{ margin: 0 }}>
           {chat.name}
-          {chat.type === "group" && 
-            <span style={{ fontSize: '13px', color: '#999', marginLeft: '8px' }}>
+          {chat.type === "group" && (
+            <span style={{ fontSize: "13px", color: "#999", marginLeft: "8px" }}>
               ({chat.members.length}人)
             </span>
-          }
+          )}
         </Typography.Title>
       </Space>
     </div>

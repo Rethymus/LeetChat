@@ -7,17 +7,17 @@ export const chatApi = api.injectEndpoints({
       query: () => "/chats",
       providesTags: ["Chat"],
     }),
-    
+
     getChat: builder.query<Chat, string>({
       query: (chatId) => `/chats/${chatId}`,
       providesTags: (result, error, chatId) => [{ type: "Chat", id: chatId }],
     }),
-    
+
     getMessages: builder.query<Message[], string>({
       query: (chatId) => `/chats/${chatId}/messages`,
       providesTags: (result, error, chatId) => [{ type: "Message", id: chatId }],
     }),
-    
+
     sendMessage: builder.mutation<Message, { chatId: string; content: string; type: string }>({
       query: ({ chatId, content, type }) => ({
         url: `/chats/${chatId}/messages`,
@@ -26,8 +26,11 @@ export const chatApi = api.injectEndpoints({
       }),
       invalidatesTags: (result, error, { chatId }) => [{ type: "Message", id: chatId }],
     }),
-    
-    createChat: builder.mutation<Chat, { userId: string; type: "private" | "group"; name?: string }>({
+
+    createChat: builder.mutation<
+      Chat,
+      { userId: string; type: "private" | "group"; name?: string }
+    >({
       query: (data) => ({
         url: "/chats",
         method: "POST",

@@ -9,11 +9,11 @@ const { Content } = Layout;
 const MainLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   return (
     <Layout className={styles.layout}>
       <Sidebar
-        selectedKey={location.pathname.split("/")[1] || 'chat'}
+        selectedKey={location.pathname.split("/")[1] || "chat"}
         onSelectMenu={(key) => navigate(`/${key}`)}
       />
       <Content className={styles.content}>

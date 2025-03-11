@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   background-color: #f0f2f5;
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGcgZmlsbD0iIzEzQTEwRSIgZmlsbC1vcGFjaXR5PSIwLjA1Ij48cGF0aCBkPSJNMCAwIGgyMCB2MjAgaC0yMHoiPjwvcGF0aD48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI1Ij48L2NpcmNsZT48L2c+PC9zdmc+');
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGcgZmlsbD0iIzEzQTEwRSIgZmlsbC1vcGFjaXR5PSIwLjA1Ij48cGF0aCBkPSJNMCAwIGgyMCB2MjAgaC0yMHoiPjwvcGF0aD48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI1Ij48L2NpcmNsZT48L2c+PC9zdmc+");
 }
 
 .card {
