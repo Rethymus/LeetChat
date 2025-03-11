@@ -7,10 +7,7 @@ import { useState } from "react";
  * @param captchaKey 验证码的唯一标识
  * @returns 验证结果
  */
-export const verifyCaptcha = async (
-  dots: number[],
-  captchaKey: string
-): Promise<boolean> => {
+export const verifyCaptcha = async (dots: number[], captchaKey: string): Promise<boolean> => {
   try {
     if (!dots?.length || !captchaKey) {
       return false;
@@ -39,10 +36,7 @@ const useCaptcha = () => {
 
   // 条件渲染验证码
   return loginFailCount >= LOGIN_FAIL_THRESHOLD && captcha.imageBase64 ? (
-    <Form.Item
-      name="captcha"
-      rules={[{ required: true, message: "请完成验证" }]}
-    >
+    <Form.Item name="captcha" rules={[{ required: true, message: "请完成验证" }]}>
       <CaptchaVerify form={form} />
     </Form.Item>
   ) : null;
