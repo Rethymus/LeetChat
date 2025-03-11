@@ -16,6 +16,7 @@ export const useCaptcha = (form: FormInstance) => {
     thumbBase64: "",
     captchaKey: "",
   });
+
   const [captchaLoading, setCaptchaLoading] = useState(false);
   const [captchaError, setCaptchaError] = useState(false);
 

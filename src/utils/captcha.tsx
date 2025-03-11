@@ -66,6 +66,23 @@ const useCaptcha = (form) => {
     resetCaptcha: () => setCaptcha({ imageBase64: "", thumbBase64: "", captchaKey: "" }),
     loginFailCount,
   };
+
+const useCaptcha = () => {
+  const [loginFailCount, setLoginFailCount] = useState(0);
+  const LOGIN_FAIL_THRESHOLD = 3; // 3次失败后显示验证码
+
+  // 在登录失败处理中
+  if (loginFailCount >= LOGIN_FAIL_THRESHOLD) {
+    getCaptchaImage();
+  }
+  setLoginFailCount((prev) => prev + 1);
+
+  // 条件渲染验证码
+  return loginFailCount >= LOGIN_FAIL_THRESHOLD && captcha.imageBase64 ? (
+    <Form.Item name="captcha" rules={[{ required: true, message: "请完成验证" }]}>
+      <CaptchaVerify form={form} />
+    </Form.Item>
+  ) : null;
 };
 
 export default useCaptcha;
