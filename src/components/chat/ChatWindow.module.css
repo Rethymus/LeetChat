@@ -49,3 +49,19 @@
   align-items: center;
   height: 100%;
 }
+
+@media (max-width: 768px) {
+  .header {
+    height: 50px;
+    line-height: 50px;
+    padding: 0 8px;
+  }
+  
+  .messageContainer {
+    padding: 8px;
+  }
+  
+  .footer {
+    padding: 8px;
+  }
+}
