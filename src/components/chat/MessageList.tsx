@@ -1,7 +1,7 @@
 import React from "react";
-import { Avatar, Spin, Image } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { Spin, Image } from "antd";
 import dayjs from "dayjs";
+import Message from "./Message"; // 导入Message组件
 import styles from "./MessageList.module.css";
 
 interface Message {
@@ -16,11 +16,15 @@ interface Message {
 
 interface MessageListProps {
   messages: Message[];
-  currentUserId: string;
+  currentUserId?: string; // 添加可选标记，默认使用"current-user"
   loading?: boolean;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId, loading }) => {
+const MessageList: React.FC<MessageListProps> = ({
+  messages,
+  currentUserId = "current-user",
+  loading = false,
+}) => {
   // 格式化时间
   const formatTime = (time: string) => {
     const messageDate = dayjs(time);
@@ -61,56 +65,18 @@ const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId, load
   const renderMessageGroups = () => {
     let lastDate = "";
 
-    return messages.map((message, index) => {
-      const messageDate = dayjs(message.createdAt).format("YYYY-MM-DD");
-      const showDateDivider = messageDate !== lastDate;
+    return messages.map((message) => {
+      const currentDate = new Date(message.createdAt).toDateString();
+      const showDateDivider = currentDate !== lastDate;
 
       if (showDateDivider) {
-        lastDate = messageDate;
+        lastDate = currentDate;
       }
-
-      const isCurrentUser = message.senderId === currentUserId;
 
       return (
         <React.Fragment key={message.id}>
-          {showDateDivider && (
-            <div className={styles.dateDivider}>
-              {dayjs(message.createdAt).format("YYYY年MM月DD日")}
-            </div>
-          )}
-
-          {message.type === "system" ? (
-            <div className={styles.systemMessageContainer}>{renderMessageContent(message)}</div>
-          ) : (
-            <div
-              className={`${styles.messageItem} ${
-                isCurrentUser ? styles.rightAlign : styles.leftAlign
-              }`}
-            >
-              {!isCurrentUser && <Avatar className={styles.avatar} icon={<UserOutlined />} />}
-              <div
-                className={`${styles.messageBubble} ${
-                  isCurrentUser ? styles.myMessage : styles.otherMessage
-                }`}
-              >
-                {renderMessageContent(message)}
-              </div>
-              {isCurrentUser && <Avatar className={styles.avatar} icon={<UserOutlined />} />}
-            </div>
-          )}
-          <div
-            className={`${styles.messageTime} ${
-              isCurrentUser ? styles.rightAlign : styles.leftAlign
-            }`}
-          >
-            {formatTime(message.createdAt)}
-            {isCurrentUser && (
-              <span className={styles.messageStatus}>
-                {message.status === "sending" && " 发送中..."}
-                {message.status === "failed" && " 发送失败"}
-              </span>
-            )}
-          </div>
+          {showDateDivider && <div className={styles.dateDivider}>{currentDate}</div>}
+          <Message message={message} isOwn={message.senderId === currentUserId} />
         </React.Fragment>
       );
     });

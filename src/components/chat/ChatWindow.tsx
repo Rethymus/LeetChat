@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Layout, Spin } from "antd";
+import { Layout } from "antd";
 import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";

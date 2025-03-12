@@ -1,76 +1,109 @@
-import React, { useState } from "react";
-import { List, Input, Avatar, Button, Modal, Form, message } from "antd";
-import { UserOutlined, SearchOutlined, PlusOutlined, UserAddOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { List, Avatar, Input, Button, message, Empty } from "antd";
+import { UserOutlined, SearchOutlined } from "@ant-design/icons";
+import { Contact } from "../types";
 import styles from "./ContactsPage.module.css";
-
-// 模拟数据
-const mockContacts = [
-  {
-    id: "1",
-    userId: "101",
-    user: {
-      id: "101",
-      username: "张三",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      status: "online" as const,
-    },
-    remark: "老张",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    userId: "102",
-    user: {
-      id: "102",
-      username: "李四",
-      avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-      status: "offline" as const,
-    },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    userId: "103",
-    user: {
-      id: "103",
-      username: "王五",
-      avatar: "https://randomuser.me/api/portraits/men/46.jpg",
-      status: "online" as const,
-    },
-    remark: "小王",
-    createdAt: new Date().toISOString(),
-  },
-];
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 const ContactsPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [contacts, setContacts] = useState(mockContacts);
-  const [searchText, setSearchText] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [form] = Form.useForm();
-
-  // 搜索联系人
-  const filteredContacts = contacts.filter(
-    (contact) =>
-      contact.user.username.includes(searchText) ||
-      (contact.remark && contact.remark.includes(searchText)),
+  // 添加安全检查，防止访问undefined属性
+  const storeContacts = useSelector(
+    (state: RootState) => (state.contact ? state.contact.contacts : []), // 注意这里是contact而不是contacts
   );
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 开始聊天
-  const startChat = (userId: string) => {
-    // 实际应用中应该创建或查找已有的聊天
-    // 这里简单跳转到模拟的聊天ID
-    navigate(`/chat/1`);
+  useEffect(() => {
+    setLoading(true);
+    console.log("加载联系人数据");
+
+    // 1. 优先使用Redux store中的数据
+    if (storeContacts && storeContacts.length > 0) {
+      console.log("使用Redux store中的联系人数据");
+      setContacts(storeContacts);
+      setLoading(false);
+      return;
+    }
+
+    // 2. 尝试从localStorage加载数据
+    const contactsStr = localStorage.getItem("contacts");
+    if (contactsStr) {
+      try {
+        const contactData = JSON.parse(contactsStr);
+        console.log("从localStorage加载联系人数据");
+        setContacts(contactData);
+      } catch (error) {
+        console.error("解析联系人数据失败", error);
+        // 使用默认联系人数据
+        setContacts(getDefaultContacts());
+      }
+    } else {
+      console.log("未找到联系人数据，使用默认数据");
+      // 使用默认联系人数据
+      setContacts(getDefaultContacts());
+    }
+
+    setLoading(false);
+  }, [storeContacts]); // 监听Redux中的联系人数据变化
+
+  // 默认联系人数据
+  const getDefaultContacts = (): Contact[] => {
+    return [
+      {
+        id: "contact1",
+        userId: "user1",
+        user: {
+          id: "user1",
+          username: "张三",
+          nickname: "张三",
+          phone: "13800000001",
+          email: "zhangsan@example.com",
+          avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+          status: "online",
+        },
+        remark: "技术部张三",
+        createdAt: "2023-01-01T00:00:00.000Z",
+      },
+      {
+        id: "contact2",
+        userId: "user2",
+        user: {
+          id: "user2",
+          username: "李四",
+          nickname: "李四",
+          phone: "13800000002",
+          email: "lisi@example.com",
+          avatar: "https://randomuser.me/api/portraits/women/2.jpg",
+          status: "offline",
+        },
+        createdAt: "2023-01-02T00:00:00.000Z",
+      },
+    ];
   };
 
-  // 添加联系人
-  const addContact = (values: { username: string }) => {
-    console.log("添加联系人:", values);
-    message.success(`已发送好友请求给 ${values.username}`);
-    setIsModalVisible(false);
-    form.resetFields();
+  // 处理搜索功能
+  const handleSearch = () => {
+    if (!searchValue.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const results = contacts.filter(
+      (contact) =>
+        (contact.user.username && contact.user.username.includes(searchValue)) ||
+        (contact.user.nickname && contact.user.nickname.includes(searchValue)) ||
+        (contact.user.phone && contact.user.phone.includes(searchValue)) ||
+        (contact.remark && contact.remark.includes(searchValue)),
+    );
+
+    setSearchResults(results);
   };
+
+  // 显示联系人列表
+  const displayContacts = searchValue.trim() ? searchResults : contacts;
 
   return (
     <div className={styles.contactsPage}>
@@ -78,84 +111,33 @@ const ContactsPage: React.FC = () => {
         <Input
           placeholder="搜索联系人"
           prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className={styles.searchInput}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          onPressEnter={() => handleSearch()}
+          allowClear
         />
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setIsModalVisible(true)}
-          className={styles.addButton}
-        >
-          添加联系人
-        </Button>
       </div>
 
-      <List
-        className={styles.contactsList}
-        dataSource={filteredContacts}
-        renderItem={(contact) => (
-          <List.Item
-            className={styles.contactItem}
-            actions={[
-              <Button
-                key="message"
-                type="primary"
-                shape="round"
-                size="small"
-                onClick={() => startChat(contact.userId)}
-              >
-                发消息
-              </Button>,
-            ]}
-          >
-            <List.Item.Meta
-              avatar={<Avatar src={contact.user.avatar} icon={<UserOutlined />} />}
-              title={
-                <span>
-                  {contact.remark || contact.user.username}
-                  {contact.remark && (
-                    <span className={styles.username}>({contact.user.username})</span>
-                  )}
-                </span>
-              }
-              description={
-                <span
-                  className={`${styles.status} ${
-                    contact.user.status === "online" ? styles.online : styles.offline
-                  }`}
-                >
-                  {contact.user.status === "online" ? "在线" : "离线"}
-                </span>
-              }
-            />
-          </List.Item>
+      <div className={styles.contactsContainer}>
+        {loading ? (
+          <div className={styles.loading}>加载中...</div>
+        ) : displayContacts.length > 0 ? (
+          <List
+            dataSource={displayContacts}
+            renderItem={(contact) => (
+              <List.Item className={styles.contactItem}>
+                <List.Item.Meta
+                  avatar={<Avatar src={contact.user.avatar} icon={<UserOutlined />} />}
+                  title={contact.remark || contact.user.nickname || contact.user.username}
+                  description={contact.user.phone || contact.user.email}
+                />
+              </List.Item>
+            )}
+          />
+        ) : (
+          <Empty description="暂无联系人" />
         )}
-      />
-
-      <Modal
-        title="添加联系人"
-        open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        footer={null}
-      >
-        <Form form={form} layout="vertical" onFinish={addContact}>
-          <Form.Item
-            name="username"
-            label="用户名/ID"
-            rules={[{ required: true, message: "请输入用户名或ID" }]}
-          >
-            <Input prefix={<UserAddOutlined />} placeholder="请输入用户名或ID" />
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              发送好友请求
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+      </div>
     </div>
   );
 };

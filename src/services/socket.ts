@@ -37,8 +37,16 @@ class SocketService {
       store.dispatch(addMessage(message));
     });
 
-    this.socket.on("typing", ({ chatId, userId, isTyping }) => {
-      // 处理正在输入状态
+    // 修复未使用的参数
+    this.socket.on("typing", (_data: { chatId: string; userId: string; isTyping: boolean }) => {
+      // 记录一个TODO注释
+      // TODO: 实现打字状态显示功能
+      console.log("收到打字状态更新，待实现显示功能");
+    });
+
+    // 或者使用解构赋值并添加下划线
+    this.socket.on("typing", ({ chatId: _chatId, userId: _userId, isTyping: _isTyping }) => {
+      // 以后可能会用到，暂时保留事件监听
     });
   }
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // 文件上传服务
-export const uploadFile = async (file: File, type: "image" | "file" = "file") => {
+export const uploadFile = async (file: File, _type?: string): Promise<string> => {
   // 1. 从后端获取OSS签名
   const { data: signData } = await axios.get("/api/upload/sign", {
     params: { fileName: file.name, fileType: file.type },

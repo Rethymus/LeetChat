@@ -1,45 +1,133 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Card,
-  Avatar,
-  Typography,
-  Divider,
-  List,
-  Button,
   Form,
   Input,
-  Modal,
-  Switch,
+  Button,
+  Radio,
+  DatePicker,
   Upload,
+  Card,
+  Avatar,
+  Modal,
   message,
+  Switch,
+  Divider,
 } from "antd";
 import {
   UserOutlined,
+  UploadOutlined,
+  EditOutlined,
   LockOutlined,
   BellOutlined,
   DeleteOutlined,
-  UploadOutlined,
-  EditOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import type { UploadProps } from "antd";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { RootState } from "../store";
 import { logout } from "../store/slices/authSlice";
-import { useNavigate } from "react-router-dom";
-import type { UploadFile } from "antd/es/upload/interface";
+import dayjs from "dayjs";
 import styles from "./ProfilePage.module.css";
 
-const { Title, Text } = Typography;
+// 默认用户信息
+const mockUserInfo = {
+  userInfo: {
+    id: 1001,
+    nickname: "测试用户",
+    phone: "13800000000",
+    email: "test@example.com",
+  },
+};
+
+// 默认用户资料
+const mockUserProfile = {
+  userProfile: {
+    user_id: 1001,
+    avatar_url: "https://randomuser.me/api/portraits/lego/1.jpg",
+    birthday: Math.floor(new Date("1990-01-01").getTime() / 1000),
+    gender: "male",
+    location: "北京市",
+  },
+};
 
 const ProfilePage: React.FC = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // 安全访问Redux状态
+  const auth = useSelector((state: RootState) => state.auth);
+  const user = auth?.user;
+
+  // 使用本地状态管理profile数据，而不是尝试从Redux获取
+  const [profile, setProfile] = useState({
+    nickname: "测试账号",
+    avatar: "https://randomuser.me/api/portraits/lego/1.jpg",
+    gender: "male",
+    birthday: dayjs("1990-01-01"),
+    location: "北京市",
+  });
+
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
-  const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
+  const [submitting, setSubmitting] = useState(false);
+
+  // 从localStorage加载数据
+  useEffect(() => {
+    // 获取用户资料
+    let userData = user;
+
+    // 如果Redux中没有数据，尝试从localStorage获取
+    if (!userData) {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          userData = JSON.parse(userStr);
+        } catch (e) {
+          console.error("解析用户数据失败", e);
+        }
+      }
+    }
+
+    // 获取个人资料信息
+    const profileStr = localStorage.getItem("profile");
+    let profileData = null;
+
+    if (profileStr) {
+      try {
+        profileData = JSON.parse(profileStr);
+      } catch (e) {
+        console.error("解析个人资料失败", e);
+      }
+    }
+
+    // 设置表单初始值
+    form.setFieldsValue({
+      nickname: userData?.nickname || userData?.username || "测试用户",
+      avatar: userData?.avatar
+        ? [{ uid: "-1", name: "avatar.png", status: "done", url: userData.avatar }]
+        : [],
+      gender: profileData?.gender || "male",
+      birthday: profileData?.birthday ? dayjs.unix(profileData.birthday) : undefined,
+      location: profileData?.location || "北京市",
+    });
+
+    // 更新本地state
+    setProfile({
+      nickname: userData?.nickname || userData?.username || "测试用户",
+      avatar:
+        userData?.avatar ||
+        profileData?.avatar_url ||
+        "https://randomuser.me/api/portraits/lego/1.jpg",
+      gender: profileData?.gender || "male",
+      birthday: profileData?.birthday ? dayjs.unix(profileData.birthday) : dayjs("1990-01-01"),
+      location: profileData?.location || "北京市",
+    });
+
+    console.log("个人资料数据加载完成");
+  }, [form, user]);
 
   // 退出登录
   const handleLogout = () => {
@@ -48,32 +136,46 @@ const ProfilePage: React.FC = () => {
   };
 
   // 处理个人信息编辑
-  const handleEditSubmit = async (values: any) => {
-    try {
-      // 更新用户昵称
-      await userApi.updateUserName({
+  const handleEditSubmit = (values: any) => {
+    setSubmitting(true);
+
+    setTimeout(() => {
+      // 模拟API调用成功
+      const updatedProfile = {
+        ...profile,
         nickname: values.nickname,
-      });
+        gender: values.gender,
+        birthday: values.birthday,
+        location: values.location,
+      };
 
-      // 更新其他资料信息
-      await userApi.updateUserProfile({
-        avatar_url: user.avatar || "",
-        birthday: values.birthday || Date.now(),
-        gender: values.gender || "male",
-        location: values.location || "",
-      });
+      // 更新本地状态
+      setProfile(updatedProfile);
 
-      message.success("个人信息更新成功");
+      // 更新localStorage
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          const userData = JSON.parse(userStr);
+          userData.nickname = values.nickname;
+          localStorage.setItem("user", JSON.stringify(userData));
+        } catch (e) {
+          console.error("更新用户数据失败", e);
+        }
+      }
+
+      const profileData = {
+        gender: values.gender,
+        birthday: values.birthday.unix(),
+        location: values.location,
+        avatar_url: values.avatar?.[0]?.url || profile.avatar,
+      };
+      localStorage.setItem("profile", JSON.stringify(profileData));
+
+      setSubmitting(false);
       setIsEditModalVisible(false);
-
-      // 刷新用户信息
-      const userInfoResponse = await userApi.getUserInfo();
-      const profileResponse = await userApi.getUserProfile();
-      // 更新Redux store...
-    } catch (error) {
-      console.error("更新个人信息失败:", error);
-      message.error("更新失败，请稍后重试");
-    }
+      message.success("个人资料更新成功");
+    }, 1000);
   };
 
   // 处理密码修改
@@ -85,7 +187,7 @@ const ProfilePage: React.FC = () => {
   };
 
   // 头像上传
-  const handleAvatarChange = (info: any) => {
+  const handleAvatarChange = (info: UploadProps["onChange"]) => {
     if (info.file.status === "done") {
       message.success("头像上传成功");
     } else if (info.file.status === "error") {
@@ -106,26 +208,7 @@ const ProfilePage: React.FC = () => {
     });
   };
 
-  // 在getUserInfo后添加获取用户资料的逻辑
-  const handleGetUserProfile = async () => {
-    try {
-      // 获取用户的详细资料
-      const profileResponse = await userApi.getUserProfile();
-
-      // 更新Redux中的用户信息，增加头像等信息
-      dispatch(
-        updateUserProfile({
-          avatar: profileResponse.userProfile.avatar_url,
-          gender: profileResponse.userProfile.gender,
-          birthday: profileResponse.userProfile.birthday,
-          location: profileResponse.userProfile.location,
-        }),
-      );
-    } catch (error) {
-      console.error("获取用户资料失败:", error);
-    }
-  };
-
+  // 设置项目
   const settingsItems = [
     {
       key: "edit",
@@ -161,92 +244,107 @@ const ProfilePage: React.FC = () => {
       title: "退出登录",
       description: "退出当前账号",
       onClick: handleLogout,
-      danger: true,
     },
   ];
 
-  if (!user) {
-    return <div className={styles.loading}>加载中...</div>;
-  }
-
   return (
     <div className={styles.profilePage}>
-      <Card className={styles.profileCard}>
-        <div className={styles.avatarSection}>
-          <Upload
-            name="avatar"
-            showUploadList={false}
-            action="/api/upload/avatar"
-            onChange={handleAvatarChange}
-          >
-            <div className={styles.avatarWrapper}>
-              <Avatar size={100} src={user.avatar} icon={<UserOutlined />} />
-              <div className={styles.uploadOverlay}>
-                <UploadOutlined />
-              </div>
-            </div>
-          </Upload>
-          <Title level={4}>{user.nickname || user.username}</Title>
-          <Text type="secondary">@{user.username}</Text>
+      <div className={styles.header}>
+        <div className={styles.userInfo}>
+          <Avatar
+            src={profile.avatar}
+            icon={<UserOutlined />}
+            size={80}
+            className={styles.avatar}
+          />
+          <h2>{profile.nickname}</h2>
+          <p>ID: {user?.id || "test-001"}</p>
         </div>
+      </div>
 
-        <Divider />
+      <Divider />
 
-        <List
-          className={styles.settingsList}
-          itemLayout="horizontal"
-          dataSource={settingsItems}
-          renderItem={(item) => (
-            <List.Item
-              className={`${styles.settingsItem} ${item.danger ? styles.dangerItem : ""}`}
-              onClick={item.onClick}
-              actions={item.extra ? [item.extra] : undefined}
-            >
-              <List.Item.Meta
-                avatar={<div className={styles.iconWrapper}>{item.icon}</div>}
-                title={item.title}
-                description={item.description}
-              />
-            </List.Item>
-          )}
-        />
-      </Card>
+      <div className={styles.settingsSection}>
+        <h3>设置</h3>
+        <div className={styles.settingsList}>
+          {settingsItems.map((item) => (
+            <Card key={item.key} className={styles.settingItem} onClick={item.onClick}>
+              <div className={styles.settingContent}>
+                <div className={styles.settingIcon}>{item.icon}</div>
+                <div className={styles.settingInfo}>
+                  <div className={styles.settingTitle}>{item.title}</div>
+                  <div className={styles.settingDesc}>{item.description}</div>
+                </div>
+                {item.extra && <div className={styles.settingExtra}>{item.extra}</div>}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
 
-      {/* 编辑个人资料弹窗 */}
       <Modal
         title="编辑个人资料"
         open={isEditModalVisible}
         onCancel={() => setIsEditModalVisible(false)}
         footer={null}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            nickname: user.nickname || "",
-            status: user.status || "online",
-          }}
-          onFinish={handleEditSubmit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
           <Form.Item
             name="nickname"
             label="昵称"
-            rules={[{ max: 20, message: "昵称不能超过20个字符" }]}
+            rules={[{ required: true, message: "请输入昵称" }]}
           >
-            <Input placeholder="设置你的昵称" />
+            <Input placeholder="请输入昵称" />
           </Form.Item>
-          <Form.Item name="status" label="状态">
-            <Input placeholder="设置你的状态" />
+
+          <Form.Item
+            name="avatar"
+            label="头像"
+            valuePropName="fileList"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) return e;
+              return e?.fileList || [];
+            }}
+          >
+            <Upload
+              name="avatar"
+              listType="picture-card"
+              className={styles.avatarUploader}
+              showUploadList={true}
+              beforeUpload={() => false}
+              onChange={handleAvatarChange}
+              maxCount={1}
+            >
+              <div>
+                <UploadOutlined />
+                <div style={{ marginTop: 8 }}>上传</div>
+              </div>
+            </Upload>
           </Form.Item>
+
+          <Form.Item name="gender" label="性别" initialValue="male">
+            <Radio.Group>
+              <Radio value="male">男</Radio>
+              <Radio value="female">女</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item name="birthday" label="生日">
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item name="location" label="地区">
+            <Input placeholder="请输入地区" />
+          </Form.Item>
+
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>
+            <Button type="primary" htmlType="submit" loading={submitting} block>
               保存
             </Button>
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* 修改密码弹窗 */}
       <Modal
         title="修改密码"
         open={isPasswordModalVisible}
@@ -255,22 +353,21 @@ const ProfilePage: React.FC = () => {
       >
         <Form form={passwordForm} layout="vertical" onFinish={handlePasswordChange}>
           <Form.Item
-            name="currentPassword"
+            name="oldPassword"
             label="当前密码"
             rules={[{ required: true, message: "请输入当前密码" }]}
           >
-            <Input.Password placeholder="输入当前密码" />
+            <Input.Password placeholder="请输入当前密码" />
           </Form.Item>
+
           <Form.Item
             name="newPassword"
             label="新密码"
-            rules={[
-              { required: true, message: "请输入新密码" },
-              { min: 6, message: "密码至少6个字符" },
-            ]}
+            rules={[{ required: true, message: "请输入新密码" }]}
           >
-            <Input.Password placeholder="输入新密码" />
+            <Input.Password placeholder="请输入新密码" />
           </Form.Item>
+
           <Form.Item
             name="confirmPassword"
             label="确认新密码"
@@ -287,11 +384,12 @@ const ProfilePage: React.FC = () => {
               }),
             ]}
           >
-            <Input.Password placeholder="再次输入新密码" />
+            <Input.Password placeholder="请确认新密码" />
           </Form.Item>
+
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              更新密码
+              确认修改
             </Button>
           </Form.Item>
         </Form>

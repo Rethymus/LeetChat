@@ -36,18 +36,18 @@ interface ChatListProps {
 const ChatList: React.FC<ChatListProps> = ({ chats, loading, activeChatId }) => {
   const navigate = useNavigate();
 
-  const formatTime = (time: string) => {
-    const date = dayjs(time);
-    const now = dayjs();
+  const formatTime = (timestamp: string): string => {
+    const messageDate = new Date(timestamp);
+    const now = new Date();
 
-    if (date.isSame(now, "day")) {
-      return date.format("HH:mm");
-    } else if (date.isSame(now.subtract(1, "day"), "day")) {
+    if (dayjs(messageDate).isSame(now, "day")) {
+      return dayjs(messageDate).format("HH:mm");
+    } else if (dayjs(messageDate).isSame(dayjs(now).subtract(1, "day"), "day")) {
       return "昨天";
-    } else if (date.isSame(now, "year")) {
-      return date.format("MM-DD");
+    } else if (dayjs(messageDate).isSame(now, "year")) {
+      return dayjs(messageDate).format("MM-DD");
     } else {
-      return date.format("YYYY-MM-DD");
+      return dayjs(messageDate).format("YYYY-MM-DD");
     }
   };
 
@@ -67,7 +67,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats, loading, activeChatId }) => 
           renderItem={(chat) => (
             <List.Item
               className={`${styles.chatItem} ${chat.id === activeChatId ? styles.activeChat : ""}`}
-              onClick={() => navigate(`/chat/${chat.id}`)}
+              onClick={(e: React.MouseEvent<HTMLDivElement>) => navigate(`/chat/${chat.id}`)}
             >
               <div className={styles.avatarContainer}>
                 <Badge count={chat.unreadCount || 0} size="small">

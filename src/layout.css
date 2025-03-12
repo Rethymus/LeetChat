@@ -1,0 +1,66 @@
+/* 全局响应式布局修正 - 只保留这一个部分，删除下方的重复样式 */
+@media screen and (max-width: 768px) {
+  /* 侧边栏样式调整 */
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    height: 60px;
+    width: 100% !important;
+    z-index: 100;
+    flex-direction: row !important;
+    border-top: 1px solid #d4d4d4;
+    border-right: none;
+  }
+
+  .sidebar .menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+  }
+
+  .sidebar .profile {
+    display: none;
+  }
+
+  .sidebar .item {
+    margin: 0;
+    padding: 8px 0;
+    height: auto;
+    flex: 1;
+  }
+
+  /* 主内容区域调整 */
+  .main-content {
+    margin-left: 0 !important;
+    margin-bottom: 60px;
+    width: 100% !important;
+  }
+
+  /* 聊天窗口调整 */
+  .chat-window {
+    height: calc(100vh - 60px);
+  }
+
+  /* 修复页面溢出 */
+  body,
+  html {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+
+  /* 侧边栏菜单项样式修复 */
+  .sidebar .footer {
+    display: none;
+  }
+
+  .sidebar .item {
+    margin: 0 !important;
+    height: 60px !important;
+    width: 25% !important;
+  }
+}

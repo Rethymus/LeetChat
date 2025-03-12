@@ -6,15 +6,7 @@ import ChatPage from "./pages/ChatPage";
 import ContactsPage from "./pages/ContactsPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
-
-// 权限保护组件
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const isAuthenticated = Boolean(localStorage.getItem("token"));
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
+import { ProtectedRoute } from "./components/common/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {

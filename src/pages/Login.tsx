@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Card, Typography, message, Tabs, Row, Col } from "antd";
-import {
-  UserOutlined,
-  LockOutlined,
-  MobileOutlined,
-  SafetyCertificateOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
+import { LockOutlined, MobileOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginStart, loginSuccess, loginFailure } from "../store/slices/authSlice";
@@ -33,12 +27,23 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loginType, setLoginType] = useState<"password" | "message">("password");
-  const [form] = Form.useForm();
+  // 为两种登录类型创建不同的表单实例
+  const [passwordForm] = Form.useForm();
+  const [messageForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
-  const { captcha, shouldShowCaptcha, getCaptchaImage, recordLoginFail, resetFailCount } =
-    useCaptcha(form);
+  // 使用当前激活的表单
+  const currentForm = loginType === "password" ? passwordForm : messageForm;
+
+  const {
+    captcha,
+    shouldShowCaptcha,
+    isLoading,
+    recordLoginFail,
+    resetCaptcha,
+    verifyCaptchaPoints,
+  } = useCaptcha(currentForm); // 传入当前激活的表单
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -49,59 +54,80 @@ const Login: React.FC = () => {
   }, [countdown]);
 
   useEffect(() => {
-    getCaptchaImage();
-  }, []);
+    resetCaptcha();
+  }, [resetCaptcha]); // 添加 resetCaptcha 作为依赖项
 
-  // 修改密码登录处理函数
+  // 替换环境变量处理方式
   const handlePasswordLogin = async (values: PasswordLoginValues & { captcha?: number[] }) => {
     try {
       setLoading(true);
 
-      // 添加：测试账号硬编码处理
-      if (values.phone === "root" && values.password === "root") {
-        console.log("测试账号登录");
+      // 使用配置对象替代环境变量
+      const testAccounts = {
+        root: "root", // 将 'admin123' 改为 'root'
+        test: "test123",
+      };
 
-        // 模拟数据
+      const isDev = import.meta.env.DEV || import.meta.env.MODE === "development";
+      const isTestAccount =
+        isDev &&
+        values.phone in testAccounts &&
+        values.password === testAccounts[values.phone as keyof typeof testAccounts];
+
+      // 改进测试账号登录逻辑
+      if (isTestAccount) {
+        console.log("使用测试账号登录");
+
+        // 对于测试账号，直接模拟成功响应，无需请求后端
+        const testToken = "test-token-12345";
+        const testExpire = Date.now() + 7 * 24 * 60 * 60 * 1000;
+        const testRefresh = Date.now() + 24 * 60 * 60 * 1000;
+
+        // 存储token和过期信息
+        localStorage.setItem("token", testToken);
+        localStorage.setItem("accessExpire", String(testExpire));
+        localStorage.setItem("refreshAfter", String(testRefresh));
+
+        // 模拟用户信息
         const testUser = {
           id: "test-001",
           username: "测试账号",
           nickname: "测试账号",
-          phone: "root",
+          phone: values.phone,
           email: "test@example.com",
           avatar: "https://randomuser.me/api/portraits/lego/1.jpg",
         };
 
-        // 存储token
-        localStorage.setItem("token", "test-token-12345");
+        // 添加更多必要的状态，确保路由可以正常跳转
+        localStorage.setItem("user", JSON.stringify(testUser));
 
+        // 派发登录成功action
         dispatch(
           loginSuccess({
             user: {
               id: testUser.id,
-              username: testUser.nickname,
+              username: testUser.username,
               phone: testUser.phone,
               email: testUser.email,
               avatar: testUser.avatar,
+              nickname: testUser.nickname,
             },
-            token: "test-token-12345",
+            token: testToken,
           }),
         );
 
         message.success("测试账号登录成功");
         navigate("/chat");
+        setLoading(false);
         return;
       }
 
-      // 如果需要验证码，则先验证
-      if (shouldShowCaptcha && values.captcha) {
-        const verifyResult = await userApi.verifyCaptcha({
-          dots: values.captcha,
-          captchaKey: captcha.captchaKey,
-        });
-
-        if (!verifyResult.result) {
+      // 如果需要验证码，则先验证（但测试账号跳过验证）
+      if (shouldShowCaptcha && values.captcha && !isTestAccount) {
+        const captchaValid = await verifyCaptchaPoints(values.captcha);
+        if (!captchaValid) {
           message.error("验证码错误，请重新验证");
-          getCaptchaImage();
+          resetCaptcha();
           setLoading(false);
           return;
         }
@@ -137,7 +163,7 @@ const Login: React.FC = () => {
       message.success("登录成功");
       navigate("/chat");
       // 登录成功后重置失败计数
-      resetFailCount();
+      resetCaptcha();
     } catch (error) {
       console.error("登录失败:", error);
       dispatch(loginFailure());
@@ -145,7 +171,7 @@ const Login: React.FC = () => {
       recordLoginFail();
       message.error("登录失败，请检查手机号和密码");
       // 登录失败时刷新验证码
-      getCaptchaImage();
+      resetCaptcha();
     } finally {
       setLoading(false);
     }
@@ -194,7 +220,7 @@ const Login: React.FC = () => {
   // 发送短信验证码
   const handleSendCode = async () => {
     try {
-      const phone = form.getFieldValue("phone");
+      const phone = currentForm.getFieldValue("phone");
       if (!phone) {
         return message.error("请输入手机号");
       }
@@ -229,7 +255,7 @@ const Login: React.FC = () => {
         >
           <TabPane tab="密码登录" key="password">
             <Form
-              form={form}
+              form={passwordForm}
               name="passwordLogin"
               initialValues={{ remember: true }}
               onFinish={handlePasswordLogin}
@@ -261,10 +287,11 @@ const Login: React.FC = () => {
               {shouldShowCaptcha && (
                 <Form.Item name="captcha" rules={[{ required: true, message: "请完成验证" }]}>
                   <CaptchaVerify
-                    form={form}
+                    form={passwordForm}
                     imageBase64={captcha.imageBase64}
-                    captchaKey={captcha.captchaKey}
-                    onRefresh={getCaptchaImage}
+                    thumbBase64={captcha.thumbBase64}
+                    isLoading={isLoading}
+                    onRefresh={resetCaptcha}
                   />
                 </Form.Item>
               )}
@@ -285,7 +312,7 @@ const Login: React.FC = () => {
 
           <TabPane tab="验证码登录" key="message">
             <Form
-              form={form}
+              form={messageForm}
               name="messageLogin"
               initialValues={{ remember: true }}
               onFinish={handleMessageLogin}

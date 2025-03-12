@@ -12,6 +12,8 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "../store/slices/authSlice";
 import { userApi } from "../api/user";
 import styles from "./Login.module.css"; // 共用登录样式
+import { useCaptcha } from "../hooks/useCaptcha";
+import CaptchaVerify from "../components/common/CaptchaVerify";
 
 const { Title } = Typography;
 
@@ -30,6 +32,8 @@ const Register: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const { captcha, shouldShowCaptcha, isLoading, resetCaptcha, verifyCaptchaPoints } =
+    useCaptcha(form);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -40,6 +44,12 @@ const Register: React.FC = () => {
   }, [countdown]);
 
   const handleRegister = async (values: RegisterFormValues) => {
+    // 添加验证码验证
+    if (shouldShowCaptcha) {
+      const captchaValid = await verifyCaptchaPoints(form.getFieldValue("captcha"));
+      if (!captchaValid) return;
+    }
+
     try {
       // 确保两次密码一致
       if (values.password !== values.confirmPassword) {
@@ -192,6 +202,18 @@ const Register: React.FC = () => {
           >
             <Input.Password prefix={<LockOutlined />} placeholder="确认密码" />
           </Form.Item>
+
+          {shouldShowCaptcha && (
+            <Form.Item name="captcha" rules={[{ required: true, message: "请完成验证" }]}>
+              <CaptchaVerify
+                form={form}
+                imageBase64={captcha.imageBase64}
+                thumbBase64={captcha.thumbBase64}
+                isLoading={isLoading}
+                onRefresh={resetCaptcha}
+              />
+            </Form.Item>
+          )}
 
           <Form.Item>
             <Button

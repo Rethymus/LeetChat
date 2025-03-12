@@ -1,14 +1,15 @@
-import React from "react";
+import * as React from "react";
 import { Typography, Space, Avatar } from "antd";
 import { UserOutlined, TeamOutlined } from "@ant-design/icons";
 import styles from "./ChatWindow.module.css";
+import { User } from "../../types"; // 导入User类型
 
 interface Chat {
   id: string;
   name?: string;
   avatar?: string;
   type: "private" | "group";
-  members: any[];
+  members: User[]; // 替换any[]为User[]
   createdAt: string;
   updatedAt: string;
 }

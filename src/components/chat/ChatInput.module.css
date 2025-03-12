@@ -1,6 +1,10 @@
 .inputContainer {
   display: flex;
   flex-direction: column;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
 }
 
 .toolbar {
@@ -41,6 +45,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  align-self: flex-end;
+  margin: 0;
 }
 
 .sendButton[disabled] {
@@ -72,4 +78,73 @@
   .toolbarIcon {
     margin-right: 8px;
   }
+}
+
+.chatInput {
+  padding: 10px;
+  border-top: 1px solid #e8e8e8;
+  background-color: #fff;
+}
+
+.actionsContainer {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-wrap: nowrap; /* 防止按钮换行 */
+}
+
+.actionsBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-wrap: nowrap;
+}
+
+.actionButton {
+  margin-right: 8px;
+  border: none;
+  color: #595959;
+  padding: 4px 8px;
+  height: 32px;
+}
+
+.textarea {
+  resize: none;
+  border: none;
+  padding: 8px;
+  min-height: 60px;
+}
+
+.sendControls {
+  display: flex;
+  justify-content: flex-end;
+  padding: 5px;
+}
+
+/* 表情面板样式 */
+.emojiPanel {
+  display: flex;
+  flex-wrap: wrap;
+  width: 250px;
+  max-width: 300px;
+  padding: 8px;
+}
+
+.emojiItem {
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+}
+
+.emojiItem:hover {
+  background-color: #f0f0f0;
 }

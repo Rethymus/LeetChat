@@ -1,6 +1,8 @@
 export interface User {
   id: string;
   username: string;
+  phone: string;
+  email: string;
   avatar: string;
   nickname?: string;
   status?: "online" | "offline";
@@ -35,3 +37,28 @@ export interface Contact {
   remark?: string;
   createdAt: string;
 }
+
+export interface UserInfoResponse {
+  userInfo: {
+    id: number;
+    nickname: string;
+    phone: string;
+    email: string;
+  };
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  accessExpire: number;
+  refreshAfter: number;
+}
+
+// 确保所有类型都已正确导出
+
+// 确保所有类型都已正确导出
+
+// 确保所有类型都已正确导出
+
+// 确保所有类型都已正确导出
+
+// 确保所有类型都已正确导出

@@ -6,13 +6,17 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
+  error: string | null;
+  testMode: boolean;
 }
 
 const initialState: AuthState = {
-  user: null,
+  user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "{}") : null,
   token: localStorage.getItem("token"),
   isAuthenticated: Boolean(localStorage.getItem("token")),
   loading: false,
+  error: null,
+  testMode: false,
 };
 
 const authSlice = createSlice({
@@ -38,8 +42,11 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem("token");
     },
+    setTestMode(state, action: PayloadAction<boolean>) {
+      state.testMode = action.payload;
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setTestMode } = authSlice.actions;
 export default authSlice.reducer;
