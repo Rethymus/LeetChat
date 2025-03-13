@@ -120,8 +120,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chatId }) => {
   }, [chatId]);
 
   const handleSendMessage = (content: string, type: string = "text") => {
-    console.log(`发送消息到 ${chatId}:`, content, type);
-
     // 添加新消息到列表
     const newMessage = {
       id: `${chatId}-${Date.now()}`,

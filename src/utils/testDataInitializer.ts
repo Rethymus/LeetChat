@@ -2,8 +2,6 @@ import { store } from "../store";
 
 // 初始化测试数据
 export const initTestEnvironment = () => {
-  console.log("初始化测试环境数据...");
-
   // 检查当前用户是否为测试账号
   const userStr = localStorage.getItem("user");
   if (userStr) {
@@ -11,8 +9,6 @@ export const initTestEnvironment = () => {
       const user = JSON.parse(userStr);
 
       if (user.phone === "root" || user.username === "测试账号") {
-        console.log("检测到测试账号登录，初始化测试数据");
-
         // 定义联系人数据
         const mockContacts = [
           {

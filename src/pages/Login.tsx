@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Form, Input, Button, Card, Typography, message, Tabs, Row, Col } from "antd";
 import { LockOutlined, MobileOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
@@ -7,7 +7,9 @@ import { loginStart, loginSuccess, loginFailure } from "../store/slices/authSlic
 import { userApi } from "../api/user";
 import styles from "./Login.module.css";
 import { useCaptcha } from "../hooks/useCaptcha";
+import { useClickCaptcha } from "../hooks/useClickCaptcha";
 import CaptchaVerify from "../components/common/CaptchaVerify";
+import ClickCaptcha from "../components/common/ClickCaptcha";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -45,6 +47,26 @@ const Login: React.FC = () => {
     verifyCaptchaPoints,
   } = useCaptcha(currentForm); // 传入当前激活的表单
 
+  const {
+    loading: clickCaptchaLoading,
+    captchaData: clickCaptchaData,
+    dots: clickCaptchaDots,
+    getCaptcha: getClickCaptcha,
+    handleImageClick: handleClickCaptchaImageClick,
+    verifyCapcha: verifyClickCaptcha,
+    resetClickCaptcha,
+  } = useClickCaptcha();
+
+  const [clickCaptchaVerified, setClickCaptchaVerified] = useState(false);
+
+  // 将useRef提升到组件顶层
+  const shouldFetch = useRef(true);
+  const initialRenderRef = useRef(true);
+  const lastRequestTimeRef = useRef<number>(0);
+
+  const shouldFetchRef = useRef(true);
+  const captchaRequestedRef = useRef(false);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (countdown > 0) {
@@ -56,6 +78,32 @@ const Login: React.FC = () => {
   useEffect(() => {
     resetCaptcha();
   }, [resetCaptcha]); // 添加 resetCaptcha 作为依赖项
+
+  useEffect(() => {
+    // 确保只在初始渲染和条件满足时获取验证码
+    if (
+      initialRenderRef.current &&
+      loginType === "password" &&
+      !shouldShowCaptcha &&
+      !captchaRequestedRef.current
+    ) {
+      initialRenderRef.current = false;
+      captchaRequestedRef.current = true;
+
+      // 确保请求间隔至少3秒
+      const now = Date.now();
+      if (now - lastRequestTimeRef.current > 3000) {
+        lastRequestTimeRef.current = now;
+
+        // 延迟请求，避免可能的渲染冲突
+        const timer = setTimeout(() => {
+          getClickCaptcha();
+        }, 500);
+
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [loginType, shouldShowCaptcha]);
 
   // 替换环境变量处理方式
   const handlePasswordLogin = async (values: PasswordLoginValues & { captcha?: number[] }) => {
@@ -76,8 +124,6 @@ const Login: React.FC = () => {
 
       // 改进测试账号登录逻辑
       if (isTestAccount) {
-        console.log("使用测试账号登录");
-
         // 对于测试账号，直接模拟成功响应，无需请求后端
         const testToken = "test-token-12345";
         const testExpire = Date.now() + 7 * 24 * 60 * 60 * 1000;
@@ -131,6 +177,15 @@ const Login: React.FC = () => {
           setLoading(false);
           return;
         }
+      } else if (!isTestAccount) {
+        // 使用点击式验证码逻辑
+        const success = await verifyClickCaptcha();
+        if (!success) {
+          message.error("请先通过点击验证码验证");
+          setLoading(false);
+          return;
+        }
+        setClickCaptchaVerified(true);
       }
 
       dispatch(loginStart());
@@ -295,6 +350,19 @@ const Login: React.FC = () => {
                   />
                 </Form.Item>
               )}
+
+              <Form.Item>
+                {loginType === "password" && !shouldShowCaptcha && (
+                  <ClickCaptcha
+                    imageBase64={clickCaptchaData?.imageBase64}
+                    thumbBase64={clickCaptchaData?.thumbBase64}
+                    dots={clickCaptchaDots}
+                    loading={clickCaptchaLoading}
+                    onImageClick={handleClickCaptchaImageClick}
+                    onRefresh={getClickCaptcha}
+                  />
+                )}
+              </Form.Item>
 
               <Form.Item>
                 <Button

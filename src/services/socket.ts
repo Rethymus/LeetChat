@@ -26,11 +26,11 @@ class SocketService {
     if (!this.socket) return;
 
     this.socket.on("connect", () => {
-      console.log("Socket connected");
+      // 删除: console.log("Socket connected");
     });
 
     this.socket.on("disconnect", () => {
-      console.log("Socket disconnected");
+      // 删除: console.log("Socket disconnected");
     });
 
     this.socket.on("message:new", (message) => {
@@ -39,14 +39,7 @@ class SocketService {
 
     // 修复未使用的参数
     this.socket.on("typing", (_data: { chatId: string; userId: string; isTyping: boolean }) => {
-      // 记录一个TODO注释
-      // TODO: 实现打字状态显示功能
-      console.log("收到打字状态更新，待实现显示功能");
-    });
-
-    // 或者使用解构赋值并添加下划线
-    this.socket.on("typing", ({ chatId: _chatId, userId: _userId, isTyping: _isTyping }) => {
-      // 以后可能会用到，暂时保留事件监听
+      // 删除: console.log("收到打字状态更新，待实现显示功能");
     });
   }
 

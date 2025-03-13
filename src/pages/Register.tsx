@@ -1,37 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Card, Typography, message, Row, Col } from "antd";
 import {
-  UserOutlined,
-  LockOutlined,
   MobileOutlined,
   MailOutlined,
+  LockOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
-import { useNavigate, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginSuccess } from "../store/slices/authSlice";
+import { Link, useNavigate } from "react-router-dom";
 import { userApi } from "../api/user";
-import styles from "./Login.module.css"; // 共用登录样式
+import styles from "./Register.module.css";
 import { useCaptcha } from "../hooks/useCaptcha";
 import CaptchaVerify from "../components/common/CaptchaVerify";
+import CaptchaModal from "../components/common/CaptchaModal";
 
 const { Title } = Typography;
 
 interface RegisterFormValues {
   phone: string;
   email: string;
-  msgcode: string;
   password: string;
   confirmPassword: string;
-  nickname: string;
+  msgcode: string;
 }
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [captchaModalVisible, setCaptchaModalVisible] = useState(false);
+
   const { captcha, shouldShowCaptcha, isLoading, resetCaptcha, verifyCaptchaPoints } =
     useCaptcha(form);
 
@@ -64,49 +62,40 @@ const Register: React.FC = () => {
         email: values.email,
         msgcode: values.msgcode,
         password: values.password,
-        nickname: values.nickname,
       });
 
-      // 存储token和过期信息
-      localStorage.setItem("token", response.accessToken);
-      localStorage.setItem("accessExpire", String(response.accessExpire));
-      localStorage.setItem("refreshAfter", String(response.refreshAfter));
-
-      // 获取用户信息
-      const userInfoResponse = await userApi.getUserInfo();
-      const userInfo = userInfoResponse.userInfo;
-
-      dispatch(
-        loginSuccess({
-          user: {
-            id: String(userInfo.id),
-            username: userInfo.nickname,
-            phone: userInfo.phone,
-            email: userInfo.email,
-            avatar: "", // 初始化空头像，后续获取Profile可更新
-          },
-          token: response.accessToken,
-        }),
-      );
-
-      message.success("注册成功，已自动登录");
-      navigate("/chat");
+      // 注册成功，跳转到登录页
+      message.success("注册成功，请登录");
+      navigate("/login");
     } catch (error) {
       console.error("注册失败:", error);
-      message.error("注册失败，请检查输入信息或稍后重试");
+      message.error("注册失败，请稍后重试");
     } finally {
       setLoading(false);
     }
   };
 
-  // 发送短信验证码
-  const handleSendCode = async () => {
+  // 显示验证码弹窗
+  const showCaptchaModal = () => {
+    const phone = form.getFieldValue("phone");
+    if (!phone) {
+      return message.error("请输入手机号");
+    }
+
+    // 验证手机号格式
+    if (!/^1\d{10}$/.test(phone)) {
+      return message.error("手机号格式不正确");
+    }
+
+    setCaptchaModalVisible(true);
+  };
+
+  // 验证码成功后发送短信
+  const handleCaptchaSuccess = async () => {
+    setCaptchaModalVisible(false);
+
     try {
       const phone = form.getFieldValue("phone");
-      if (!phone) {
-        return message.error("请输入手机号");
-      }
-
       await userApi.getMessageCode({
         msgType: "register",
         phone,
@@ -117,6 +106,22 @@ const Register: React.FC = () => {
     } catch (error) {
       console.error("发送验证码失败:", error);
       message.error("发送验证码失败，请稍后重试");
+    }
+  };
+
+  // 验证处理
+  const handleVerify = async () => {
+    if (dots.length < 8) {
+      message.warning("请点击4个字符位置");
+      return;
+    }
+
+    const success = await verifyCapcha();
+    if (success) {
+      message.success("验证成功");
+      onSuccess();
+    } else {
+      message.error("验证失败，请重新尝试");
     }
   };
 
@@ -164,22 +169,18 @@ const Register: React.FC = () => {
                 <Input prefix={<SafetyCertificateOutlined />} placeholder="验证码" />
               </Col>
               <Col flex="none">
-                <Button onClick={handleSendCode} disabled={countdown > 0}>
+                <Button onClick={showCaptchaModal} disabled={countdown > 0}>
                   {countdown > 0 ? `${countdown}s` : "获取验证码"}
                 </Button>
               </Col>
             </Row>
           </Form.Item>
 
-          <Form.Item name="nickname" rules={[{ required: false, message: "请输入昵称" }]}>
-            <Input prefix={<UserOutlined />} placeholder="昵称（选填）" />
-          </Form.Item>
-
           <Form.Item
             name="password"
             rules={[
               { required: true, message: "请输入密码" },
-              { min: 6, message: "密码至少6个字符" },
+              { min: 6, message: "密码长度不能小于6位" },
             ]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder="密码" />
@@ -187,7 +188,6 @@ const Register: React.FC = () => {
 
           <Form.Item
             name="confirmPassword"
-            dependencies={["password"]}
             rules={[
               { required: true, message: "请确认密码" },
               ({ getFieldValue }) => ({
@@ -220,7 +220,7 @@ const Register: React.FC = () => {
               type="primary"
               htmlType="submit"
               block
-              className={styles.loginButton}
+              className={styles.registerButton}
               loading={loading}
             >
               注册
@@ -228,10 +228,19 @@ const Register: React.FC = () => {
           </Form.Item>
 
           <div className={styles.footer}>
-            <Link to="/login">返回登录</Link>
+            已有账号？
+            <Link to="/login">立即登录</Link>
           </div>
         </Form>
       </Card>
+
+      {/* 验证码弹窗 */}
+      <CaptchaModal
+        visible={captchaModalVisible}
+        onCancel={() => setCaptchaModalVisible(false)}
+        onSuccess={handleCaptchaSuccess}
+        title="安全验证"
+      />
     </div>
   );
 };

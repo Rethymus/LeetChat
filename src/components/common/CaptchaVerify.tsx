@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
-import { FormInstance, Spin } from "antd";
+import { FormInstance, Spin, Form, Row, Col, Button } from "antd";
 import { ReloadOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import styles from "./CaptchaVerify.module.scss";
+import styles from "./CaptchaVerify.module.css";
 
 interface CaptchaVerifyProps {
   form: FormInstance;
@@ -78,77 +78,67 @@ const CaptchaVerify: React.FC<CaptchaVerifyProps> = ({
   // 添加提示和动画效果
   return (
     <div className={styles.captchaContainer} role="region" aria-label="验证码区域">
-      {/* 添加提示文本 */}
-      <div className={styles.captchaTitle}>
-        请依次点击下图中的{" "}
-        {thumbBase64 && (
-          <img
-            src={`data:image/png;base64,${thumbBase64}`}
-            alt="目标"
-            className={styles.thumbImageInline}
-          />
-        )}
-        {marks.length > 0 && <span className={styles.progress}>({marks.length / 2}/5)</span>}
+      <div className={styles.captchaHeader}>
+        <span className={styles.captchaTitle}>请完成安全验证</span>
+        <Button
+          type="text"
+          icon={<ReloadOutlined />}
+          onClick={handleRefresh}
+          disabled={isLoading}
+          className={styles.refreshButton}
+        >
+          刷新
+        </Button>
       </div>
-
-      <div className={styles.captchaImageContainer}>
+      <div className={styles.captchaContent}>
         {isLoading ? (
           <div className={styles.loading}>
-            <Spin tip="加载中..." />
+            <Spin />
+            <p>加载中...</p>
           </div>
         ) : (
           <>
-            {!imageLoaded && (
-              <div className={styles.loading}>
-                <Spin />
+            <div className={styles.captchaImage}>
+              <img
+                src={`data:image/png;base64,${imageBase64}`}
+                alt="请点击指定目标进行验证"
+                className={`${styles.captchaImage} ${imageLoaded ? styles.loaded : ""}`}
+                onClick={handleCaptchaClick}
+                onLoad={() => setImageLoaded(true)}
+                style={{ display: imageLoaded ? "block" : "none" }}
+              />
+              <div className={styles.captchaMarks}>
+                {Array.from({ length: marks.length / 2 }, (_, i) => (
+                  <div
+                    key={i}
+                    className={styles.captchaMark}
+                    style={{
+                      left: `${marks[i * 2]}px`,
+                      top: `${marks[i * 2 + 1]}px`,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {thumbBase64 && (
+              <div className={styles.thumbImage}>
+                <img src={`data:image/png;base64,${thumbBase64}`} alt="验证码缩略图" />
+                <p className={styles.captchaInputHint}>请依次点击图中对应的4个汉字位置</p>
               </div>
             )}
-            <img
-              src={`data:image/png;base64,${imageBase64}`}
-              alt="请点击指定目标进行验证"
-              className={`${styles.captchaImage} ${imageLoaded ? styles.loaded : ""}`}
-              onClick={handleCaptchaClick}
-              onLoad={() => setImageLoaded(true)}
-              style={{ display: imageLoaded ? "block" : "none" }}
-            />
           </>
         )}
-
-        {/* 显示标记点 */}
-        {marks.length > 0 &&
-          marks.map((_, i) => {
-            if (i % 2 === 0) {
-              const x = marks[i];
-              const y = marks[i + 1];
-              return (
-                <span
-                  key={i / 2}
-                  className={`${styles.captchaMark} ${styles.animated}`}
-                  onClick={() => handleMarkClick(i / 2)}
-                  style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                  }}
-                >
-                  {i / 2 + 1}
-                </span>
-              );
-            }
-            return null;
-          })}
       </div>
-
+      <Row gutter={8} className={styles.captchaInput}>
+        <Col span={24}>
+          <Form.Item name="captcha" noStyle>
+            <div className={styles.captchaInputHint}>请输入验证码中的4个数字，用空格分隔</div>
+          </Form.Item>
+        </Col>
+      </Row>
       <div className={styles.captchaActions}>
-        <button
-          type="button"
-          className={styles.refreshButton}
-          onClick={handleRefresh}
-          onKeyPress={handleKeyPress}
-          aria-label="刷新验证码"
-          tabIndex={0}
-        >
-          <ReloadOutlined /> 刷新验证码
-        </button>
         <button
           type="button"
           className={styles.clearButton}

@@ -60,14 +60,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // 菜单项点击处理函数
   const handleItemClick = (key: string) => {
-    console.log("点击菜单项:", key);
     setActiveKey(key);
     onSelectMenu(key);
   };
 
   // 退出登录
   const handleLogout = () => {
-    console.log("退出登录");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("contacts");
@@ -79,7 +77,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   // 渲染菜单项
   const handleClick = (e: React.MouseEvent, key: string) => {
     e.stopPropagation(); // 防止事件冒泡
-    console.log("点击了菜单项:", key);
     handleItemClick(key);
   };
 
@@ -93,9 +90,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={styles.label}>{item.label}</div>
     </div>
   );
-
-  console.log("Sidebar rendered with selectedKey:", selectedKey);
-  console.log("User in sidebar:", user);
 
   return (
     <div className={styles.sidebar}>

@@ -125,8 +125,6 @@ const ProfilePage: React.FC = () => {
       birthday: profileData?.birthday ? dayjs.unix(profileData.birthday) : dayjs("1990-01-01"),
       location: profileData?.location || "北京市",
     });
-
-    console.log("个人资料数据加载完成");
   }, [form, user]);
 
   // 退出登录
@@ -160,7 +158,10 @@ const ProfilePage: React.FC = () => {
           userData.nickname = values.nickname;
           localStorage.setItem("user", JSON.stringify(userData));
         } catch (e) {
-          console.error("更新用户数据失败", e);
+          // 只在开发环境输出错误
+          if (import.meta.env.DEV) {
+            console.error("更新用户数据失败", e);
+          }
         }
       }
 
@@ -180,7 +181,6 @@ const ProfilePage: React.FC = () => {
 
   // 处理密码修改
   const handlePasswordChange = (values: any) => {
-    console.log("修改密码:", values);
     message.success("密码修改成功");
     setIsPasswordModalVisible(false);
     passwordForm.resetFields();

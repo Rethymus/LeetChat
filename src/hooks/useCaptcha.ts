@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { FormInstance, message } from "antd";
-import { userApi } from "../api/user";
+import axios from "axios";
 
 // 定义类型
 interface CaptchaData {
@@ -28,12 +28,28 @@ export const useCaptcha = (form: FormInstance) => {
   const getCaptchaImage = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await userApi.getCaptcha();
-      setCaptcha({
-        imageBase64: response.imageBase64,
-        thumbBase64: response.thumbBase64,
-        captchaKey: response.captchaKey,
-      });
+      const response = await axios.get("/api/v1/user/get-captcha");
+
+      if (response.data.code === 0) {
+        // 修正字段名匹配
+        const { image_base64, thumb_base64, captcha_key } = response.data.data;
+
+        const formatBase64 = (base64: string) => {
+          if (base64.startsWith("data:image")) {
+            return base64;
+          }
+          return `data:image/png;base64,${base64}`;
+        };
+
+        setCaptcha({
+          imageBase64: formatBase64(image_base64),
+          thumbBase64: formatBase64(thumb_base64),
+          captchaKey: captcha_key,
+        });
+      } else {
+        console.error("获取验证码失败:", response.data.msg);
+        message.error("获取验证码失败，请重试");
+      }
     } catch (error) {
       console.error("获取验证码失败:", error);
       message.error("获取验证码失败，请重试");
@@ -71,19 +87,19 @@ export const useCaptcha = (form: FormInstance) => {
       setIsLoading(true);
       setVerifyAttempts((prev) => prev + 1);
 
-      const result = await userApi.verifyCaptcha({
-        dots: points,
-        captchaKey: captcha.captchaKey,
+      const result = await axios.post("/api/v1/user/verify-captcha", {
+        dots: points.join(","),
+        captcha_key: captcha.captchaKey, // 修正请求参数名称为snake_case
       });
 
-      if (!result.result) {
+      if (result.data.code === 0 && result.data.data.result) {
+        setVerifyAttempts(0); // 成功后重置尝试次数
+        return true;
+      } else {
         message.error("验证失败，请重新验证");
         resetCaptcha();
-      } else {
-        setVerifyAttempts(0); // 成功后重置尝试次数
+        return false;
       }
-
-      return result.result;
     } catch (error) {
       console.error("验证码验证失败:", error);
       message.error("验证失败，请稍后再试");

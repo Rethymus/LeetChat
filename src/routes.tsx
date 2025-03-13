@@ -7,6 +7,7 @@ import ContactsPage from "./pages/ContactsPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
+import CaptchaTest from "./pages/CaptchaTest";
 
 export const router = createBrowserRouter([
   {
@@ -26,5 +27,6 @@ export const router = createBrowserRouter([
   },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
+  { path: "/captcha-test", element: <CaptchaTest /> },
   { path: "*", element: <NotFound /> },
 ]);

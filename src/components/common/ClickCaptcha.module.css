@@ -1,0 +1,95 @@
+.container {
+  margin-bottom: 15px;
+  width: 100%;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 10px;
+  background: #f9f9f9;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+}
+
+.imageContainer {
+  position: relative;
+  margin-bottom: 10px;
+  width: 100%;
+  min-height: 100px; /* 确保有最小高度 */
+}
+
+.placeholder {
+  width: 100%;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  border: 1px dashed #d9d9d9;
+  color: #999;
+}
+
+.captchaImage {
+  width: 100%;
+  cursor: crosshair;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.thumbContainer {
+  margin: 10px 0;
+  text-align: center;
+}
+
+.thumbImage {
+  height: 50px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+
+.dotMarkers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+.dot {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(24, 144, 255, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  transform: translate(-50%, -50%);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.refreshButton {
+  padding: 0;
+}
+
+.tip {
+  margin: 5px 0 0 0;
+  color: #888;
+  font-size: 12px;
+}

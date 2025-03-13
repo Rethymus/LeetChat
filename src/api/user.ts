@@ -3,7 +3,7 @@ import { message } from "antd";
 
 // 配置axios实例
 const api = axios.create({
-  baseURL: "/api/v1",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api/v1",
   timeout: 10000,
 });
 
@@ -46,18 +46,18 @@ api.interceptors.response.use(
 // 用户认证相关API，根据Swagger文档调整
 export const userApi = {
   // 获取图形验证码
-  getCaptcha: () => api.get("/user/get-captcha"),
+  getCaptcha: () => api.get("/api/v1/user/get-captcha"),
 
   // 验证图形验证码
   verifyCaptcha: (data: { dots: number[]; captchaKey: string }) =>
-    api.post("/user/verify-captcha", data),
+    api.post("/api/v1/user/verify-captcha", data),
 
   // 获取短信验证码
   getMessageCode: (data: { msgType: string; phone: string }) =>
-    api.post("/user/message-code", data),
+    api.post("/api/v1/user/message-code", data),
 
   // 密码登录
-  login: (data: { phone: string; password: string }) => api.post("/user/login", data),
+  login: (data: { phone: string; password: string }) => api.post("/api/v1/user/login", data),
 
   // 短信登录
   msgLogin: (data: { phone: string; msgcode: string }) => api.post("/user/msg-login", data),
@@ -98,4 +98,24 @@ export const userApi = {
 
   // 获取在线用户列表
   getOnlineUsers: () => api.get("/user/online-users"),
+};
+
+// src/api/user.ts
+export const getCaptcha = async () => {
+  try {
+    // 确保路径与后端匹配
+    const response = await axios.get("/api/v1/user/get-captcha");
+    console.log("验证码响应:", response.data);
+
+    // 检查响应格式
+    if (response.data.code === 0 && response.data.data) {
+      return response.data.data;
+    } else {
+      console.error("获取验证码失败:", response.data.msg);
+      return null;
+    }
+  } catch (error) {
+    console.error("获取验证码请求错误:", error);
+    return null;
+  }
 };
