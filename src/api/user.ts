@@ -43,79 +43,86 @@ api.interceptors.response.use(
   },
 );
 
-// 用户认证相关API，根据Swagger文档调整
+// 定义API接口类型
+export interface LoginParams {
+  phone: string;
+  password: string;
+}
+
+export interface MessageLoginParams {
+  phone: string;
+  msgcode: string;
+}
+
+export interface RegisterParams {
+  phone: string;
+  email: string;
+  password: string;
+  msgcode: string;
+  nickname?: string;
+}
+
+export interface MessageCodeParams {
+  msg_type: string;
+  phone: string;
+}
+
+export interface ChangePasswordParams {
+  phone: string;
+  msgcode: string;
+  new_password: string;
+}
+
+export interface ChangePasswordByEmailParams {
+  email: string;
+  msgcode: string;
+  new_password: string;
+}
+
+export interface UpdateProfileParams {
+  avatar_url: string;
+  birthday: number;
+  gender: "male" | "female";
+  location: string;
+}
+
+export interface UpdateUserNameParams {
+  nickname: string;
+}
+
+// 用户API
 export const userApi = {
-  // 获取图形验证码
-  getCaptcha: () => api.get("/api/v1/user/get-captcha"),
+  // 获取用户信息
+  getUserInfo: () => axios.get("/api/v1/user/info"),
 
-  // 验证图形验证码
-  verifyCaptcha: (data: { dots: number[]; captchaKey: string }) =>
-    api.post("/api/v1/user/verify-captcha", data),
-
-  // 获取短信验证码
-  getMessageCode: (data: { msgType: string; phone: string }) =>
-    api.post("/api/v1/user/message-code", data),
-
-  // 密码登录
-  login: (data: { phone: string; password: string }) => api.post("/api/v1/user/login", data),
+  // 登录
+  login: (data: LoginParams) => axios.post("/api/v1/user/login", data),
 
   // 短信登录
-  msgLogin: (data: { phone: string; msgcode: string }) => api.post("/user/msg-login", data),
+  msgLogin: (data: MessageLoginParams) => axios.post("/api/v1/user/msg-login", data),
 
-  // 用户注册
-  register: (data: {
-    phone: string;
-    email: string;
-    msgcode: string;
-    password: string;
-    nickname?: string;
-  }) => api.post("/user/register", data),
+  // 注册
+  register: (data: RegisterParams) => axios.post("/api/v1/user/register", data),
 
-  // 获取用户信息
-  getUserInfo: () => api.get("/user/info"),
+  // 获取短信验证码
+  getMessageCode: (data: MessageCodeParams) => axios.post("/api/v1/user/message-code", data),
 
   // 获取用户资料
-  getUserProfile: () => api.get("/user/profile"),
-
-  // 修改密码 (通过手机号)
-  changePassword: (data: { phone: string; msgcode: string; newPassword: string }) =>
-    api.post("/user/change-password", data),
-
-  // 修改密码 (通过邮箱)
-  changePasswordByEmail: (data: { email: string; msgcode: string; newPassword: string }) =>
-    api.post("/user/change-password-by-email", data),
-
-  // 更新用户昵称
-  updateUserName: (data: { nickname: string }) => api.post("/user/update-name", data),
+  getUserProfile: () => axios.get("/api/v1/user/profile"),
 
   // 更新用户资料
-  updateUserProfile: (data: {
-    avatar_url: string;
-    birthday: number;
-    gender: "male" | "female";
-    location: string;
-  }) => api.post("/user/update-profile", data),
+  updateUserProfile: (data: UpdateProfileParams) => axios.post("/api/v1/user/update-profile", data),
+
+  // 更新用户名
+  updateUserName: (data: UpdateUserNameParams) => axios.post("/api/v1/user/update-name", data),
+
+  // 修改密码
+  changePassword: (data: ChangePasswordParams) => axios.post("/api/v1/user/change-password", data),
+
+  // 通过邮箱修改密码
+  changePasswordByEmail: (data: ChangePasswordByEmailParams) =>
+    axios.post("/api/v1/user/change-password-by-email", data),
 
   // 获取在线用户列表
-  getOnlineUsers: () => api.get("/user/online-users"),
-};
-
-// src/api/user.ts
-export const getCaptcha = async () => {
-  try {
-    // 确保路径与后端匹配
-    const response = await axios.get("/api/v1/user/get-captcha");
-    console.log("验证码响应:", response.data);
-
-    // 检查响应格式
-    if (response.data.code === 0 && response.data.data) {
-      return response.data.data;
-    } else {
-      console.error("获取验证码失败:", response.data.msg);
-      return null;
-    }
-  } catch (error) {
-    console.error("获取验证码请求错误:", error);
-    return null;
-  }
+  getOnlineUsers: () => axios.get("/api/v1/user/online-users"),
 };

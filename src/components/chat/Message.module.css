@@ -1,7 +1,12 @@
 .message {
   display: flex;
-  margin-bottom: 12px;
-  position: relative;
+  margin: 16px 0;
+  align-items: flex-start;
+}
+
+.messageContainer {
+  display: flex;
+  margin-bottom: 16px;
   align-items: flex-start;
 }
 
@@ -18,48 +23,106 @@
   flex-shrink: 0;
 }
 
-.bubble {
+.bubbleContainer {
   max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.own .bubbleContainer {
+  align-items: flex-end;
+}
+
+.bubble {
+  padding: 10px 16px;
+  border-radius: 18px;
+  word-wrap: break-word;
+  max-width: 100%;
   position: relative;
   word-break: break-word;
 }
 
 .own .bubble {
+  background-color: #07c160;
+  color: white;
+  border-top-right-radius: 2px;
+}
+
+.ownBubble {
   background-color: #dcf8c6;
-  margin-right: 12px;
+  border-top-right-radius: 0;
+  margin-right: 8px;
 }
 
 .other .bubble {
-  background-color: #ffffff;
-  margin-left: 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background-color: #f1f1f1;
+  color: #333;
+  border-top-left-radius: 2px;
+}
+
+.otherBubble {
+  background-color: #f1f0f0;
+  border-top-left-radius: 0;
+  margin-left: 8px;
 }
 
 .textContent {
+  white-space: pre-wrap;
   word-break: break-word;
+  line-height: 1.5;
 }
 
 .imageContent {
-  max-width: 250px;
+  display: inline-block;
+  max-width: 100%;
+  cursor: pointer;
+  border-radius: 8px;
 }
 
 .image {
   max-width: 100%;
-  border-radius: 4px;
+  max-height: 200px;
+  border-radius: 8px;
+  object-fit: contain;
+  cursor: pointer;
 }
 
 .fileContent {
   display: flex;
   align-items: center;
+  padding: 8px;
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  color: #888;
+  font-size: 12px;
+}
+
+.systemMessageContainer {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+  text-align: center;
 }
 
 .systemMessage {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #f1f1f1;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #999;
   font-style: italic;
-  color: #888;
+  color: #8c8c8c;
   text-align: center;
   width: 100%;
+}
+
+.time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  text-align: right;
 }
 
 /* 添加表情样式 */
@@ -77,4 +140,37 @@
   flex-wrap: wrap;
   gap: 5px;
   align-items: center;
+}
+
+.messageContent {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+.own .messageContent {
+  align-items: flex-end;
+}
+
+.other .messageContent {
+  align-items: flex-start;
+}
+
+.messageTime {
+  font-size: 10px;
+  color: #999;
+  margin-top: 4px;
+  position: absolute;
+  bottom: -14px;
+  right: 5px;
+}
+
+.messageStatus {
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.failed {
+  color: #ff4d4f;
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { FormInstance, message } from "antd";
 import axios from "axios";
 
@@ -22,19 +22,37 @@ export const useCaptcha = (form: FormInstance) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [verifyAttempts, setVerifyAttempts] = useState(0);
 
+  // 请求控制
+  const requestTimeRef = useRef<number>(0);
+  const isRequestingRef = useRef<boolean>(false);
+  const MIN_REQUEST_INTERVAL = 5000;
+
   const LOGIN_FAIL_THRESHOLD = 3; // 3次失败后显示验证码
 
-  // 使用 useCallback 包装函数，正确设置依赖项
+  // 获取验证码
   const getCaptchaImage = useCallback(async () => {
+    // 防止重复请求
+    if (isRequestingRef.current) return;
+
+    // 检查请求间隔
+    const now = Date.now();
+    if (now - requestTimeRef.current < MIN_REQUEST_INTERVAL) {
+      return;
+    }
+
     try {
+      isRequestingRef.current = true;
+      requestTimeRef.current = now;
       setIsLoading(true);
+
       const response = await axios.get("/api/v1/user/get-captcha");
 
       if (response.data.code === 0) {
-        // 修正字段名匹配
+        // 使用正确的snake_case字段名，与API匹配
         const { image_base64, thumb_base64, captcha_key } = response.data.data;
 
         const formatBase64 = (base64: string) => {
+          if (!base64) return "";
           if (base64.startsWith("data:image")) {
             return base64;
           }
@@ -55,10 +73,14 @@ export const useCaptcha = (form: FormInstance) => {
       message.error("获取验证码失败，请重试");
     } finally {
       setIsLoading(false);
+      // 延迟解除请求标记
+      setTimeout(() => {
+        isRequestingRef.current = false;
+      }, 1000);
     }
-  }, []); // 无外部依赖
+  }, []);
 
-  // 使用 useCallback 包装其他函数，设置正确的依赖项
+  // 记录登录失败
   const recordLoginFail = useCallback(() => {
     setLoginFailCount((prev) => {
       const newCount = prev + 1;
@@ -87,13 +109,14 @@ export const useCaptcha = (form: FormInstance) => {
       setIsLoading(true);
       setVerifyAttempts((prev) => prev + 1);
 
+      // 使用正确的snake_case字段名，与API匹配
       const result = await axios.post("/api/v1/user/verify-captcha", {
         dots: points.join(","),
-        captcha_key: captcha.captchaKey, // 修正请求参数名称为snake_case
+        captcha_key: captcha.captchaKey,
       });
 
       if (result.data.code === 0 && result.data.data.result) {
-        setVerifyAttempts(0); // 成功后重置尝试次数
+        setVerifyAttempts(0);
         return true;
       } else {
         message.error("验证失败，请重新验证");

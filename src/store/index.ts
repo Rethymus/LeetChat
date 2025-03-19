@@ -1,17 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
-import contactReducer from "./slices/contactSlice";
-import profileReducer from "./slices/profileSlice"; // 新增
-import { api } from "./api";
+import chatReducer from "./slices/chatSlice";
+import contactsReducer from "./slices/contactSlice"; // 修改这里：去掉s
+import userReducer from "./slices/userSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    contact: contactReducer,
-    profile: profileReducer, // 添加profileReducer
-    [api.reducerPath]: api.reducer,
+    chat: chatReducer,
+    contacts: contactsReducer,
+    user: userReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

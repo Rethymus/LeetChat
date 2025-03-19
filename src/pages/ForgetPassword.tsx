@@ -30,7 +30,8 @@ interface EmailFormValues {
 const ForgetPassword: React.FC = () => {
   const navigate = useNavigate();
   const [resetType, setResetType] = useState<"phone" | "email">("phone");
-  const [form] = Form.useForm();
+  const [phoneForm] = Form.useForm();
+  const [emailForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
@@ -42,269 +43,292 @@ const ForgetPassword: React.FC = () => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  // 通过手机重置密码
   const handlePhoneReset = async (values: PhoneFormValues) => {
+    if (values.newPassword !== values.confirmPassword) {
+      message.error("两次输入的密码不一致");
+      return;
+    }
+
+    setLoading(true);
     try {
-      // 确保两次密码一致
-      if (values.newPassword !== values.confirmPassword) {
-        return message.error("两次输入的密码不一致");
-      }
-
-      setLoading(true);
-
-      // 调用修改密码API
       await userApi.changePassword({
         phone: values.phone,
         msgcode: values.msgcode,
-        newPassword: values.newPassword,
+        new_password: values.newPassword,
       });
-
       message.success("密码重置成功，请使用新密码登录");
       navigate("/login");
     } catch (error) {
       console.error("密码重置失败:", error);
-      message.error("密码重置失败，请检查输入信息或稍后重试");
+      message.error("密码重置失败，请检查手机号和验证码");
     } finally {
       setLoading(false);
     }
   };
 
-  // 通过邮箱重置密码
   const handleEmailReset = async (values: EmailFormValues) => {
+    if (values.newPassword !== values.confirmPassword) {
+      message.error("两次输入的密码不一致");
+      return;
+    }
+
+    setLoading(true);
     try {
-      // 确保两次密码一致
-      if (values.newPassword !== values.confirmPassword) {
-        return message.error("两次输入的密码不一致");
-      }
-
-      setLoading(true);
-
-      // 调用修改密码API
       await userApi.changePasswordByEmail({
         email: values.email,
         msgcode: values.msgcode,
-        newPassword: values.newPassword,
+        new_password: values.newPassword,
       });
-
       message.success("密码重置成功，请使用新密码登录");
       navigate("/login");
     } catch (error) {
       console.error("密码重置失败:", error);
-      message.error("密码重置失败，请检查输入信息或稍后重试");
+      message.error("密码重置失败，请检查邮箱和验证码");
     } finally {
       setLoading(false);
     }
   };
 
-  // 发送短信验证码
-  const handleSendPhoneCode = async () => {
+  const sendSmsCode = async () => {
     try {
-      const phone = form.getFieldValue("phone");
+      const phone = phoneForm.getFieldValue("phone");
       if (!phone) {
-        return message.error("请输入手机号");
+        message.error("请输入手机号");
+        return;
       }
 
       await userApi.getMessageCode({
-        msgType: "resetPassword",
         phone,
+        msg_type: "resetpwd",
       });
 
-      message.success("验证码发送成功");
+      message.success("验证码已发送");
       setCountdown(60);
     } catch (error) {
       console.error("发送验证码失败:", error);
-      message.error("发送验证码失败，请稍后重试");
+      message.error("发送验证码失败");
     }
   };
 
-  // 发送邮箱验证码 (实际API可能不同，这里简化处理)
-  const handleSendEmailCode = async () => {
+  const sendEmailCode = async () => {
     try {
-      const email = form.getFieldValue("email");
+      const email = emailForm.getFieldValue("email");
       if (!email) {
-        return message.error("请输入邮箱");
+        message.error("请输入邮箱");
+        return;
       }
 
-      // 这里根据实际API调整
-      await userApi.getMessageCode({
-        msgType: "resetPasswordEmail",
-        phone: email, // 这里可能需要调整API或创建新的API
-      });
+      // 假设有一个发送邮箱验证码的接口
+      // await userApi.getEmailCode({
+      //   email,
+      //   msgType: "resetpwd",
+      // });
 
       message.success("验证码已发送到邮箱");
       setCountdown(60);
     } catch (error) {
       console.error("发送验证码失败:", error);
-      message.error("发送验证码失败，请稍后重试");
+      message.error("发送验证码失败");
     }
   };
 
   return (
-    <div className={styles.container}>
-      <Card className={styles.card}>
-        <div className={styles.logo}>
-          <img src="/leetchat-logo.png" alt="LeetChat Logo" />
-        </div>
-        <Title level={2} className={styles.title}>
-          重置密码
-        </Title>
+    <div className={styles.loginContainer}>
+      <div className={styles.loginForm}>
+        <Card className={styles.formCard}>
+          <div className={styles.formHeader}>
+            <Title level={2} className={styles.title}>
+              忘记密码
+            </Title>
+          </div>
 
-        <Tabs
-          activeKey={resetType}
-          onChange={(key) => setResetType(key as "phone" | "email")}
-          centered
-        >
-          <TabPane tab="手机号重置" key="phone">
-            <Form
-              form={form}
-              name="phoneReset"
-              onFinish={handlePhoneReset}
-              size="large"
-              className={styles.form}
-            >
-              <Form.Item
-                name="phone"
-                rules={[
-                  { required: true, message: "请输入手机号" },
-                  { pattern: /^1\d{10}$/, message: "手机号格式不正确" },
-                ]}
+          <Tabs activeKey={resetType} onChange={(key) => setResetType(key as "phone" | "email")}>
+            <TabPane tab="手机号重置" key="phone">
+              <Form
+                form={phoneForm}
+                name="phone_reset"
+                onFinish={handlePhoneReset}
+                layout="vertical"
               >
-                <Input prefix={<MobileOutlined />} placeholder="手机号" />
-              </Form.Item>
-
-              <Form.Item name="msgcode" rules={[{ required: true, message: "请输入验证码" }]}>
-                <Row gutter={8}>
-                  <Col flex="auto">
-                    <Input prefix={<SafetyCertificateOutlined />} placeholder="验证码" />
-                  </Col>
-                  <Col flex="none">
-                    <Button onClick={handleSendPhoneCode} disabled={countdown > 0}>
-                      {countdown > 0 ? `${countdown}s` : "获取验证码"}
-                    </Button>
-                  </Col>
-                </Row>
-              </Form.Item>
-
-              <Form.Item
-                name="newPassword"
-                rules={[
-                  { required: true, message: "请输入新密码" },
-                  { min: 6, message: "密码至少6个字符" },
-                ]}
-              >
-                <Input.Password prefix={<LockOutlined />} placeholder="新密码" />
-              </Form.Item>
-
-              <Form.Item
-                name="confirmPassword"
-                dependencies={["newPassword"]}
-                rules={[
-                  { required: true, message: "请确认密码" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("newPassword") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error("两次输入的密码不一致"));
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password prefix={<LockOutlined />} placeholder="确认新密码" />
-              </Form.Item>
-
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  block
-                  className={styles.loginButton}
-                  loading={loading}
+                <Form.Item
+                  name="phone"
+                  rules={[
+                    { required: true, message: "请输入手机号" },
+                    { pattern: /^1\d{10}$/, message: "手机号格式不正确" },
+                  ]}
                 >
-                  重置密码
-                </Button>
-              </Form.Item>
-            </Form>
-          </TabPane>
+                  <Input prefix={<MobileOutlined />} placeholder="请输入手机号" size="large" />
+                </Form.Item>
 
-          <TabPane tab="邮箱重置" key="email">
-            <Form
-              form={form}
-              name="emailReset"
-              onFinish={handleEmailReset}
-              size="large"
-              className={styles.form}
-            >
-              <Form.Item
-                name="email"
-                rules={[
-                  { required: true, message: "请输入邮箱" },
-                  { type: "email", message: "邮箱格式不正确" },
-                ]}
-              >
-                <Input prefix={<MailOutlined />} placeholder="邮箱" />
-              </Form.Item>
-
-              <Form.Item name="msgcode" rules={[{ required: true, message: "请输入验证码" }]}>
-                <Row gutter={8}>
-                  <Col flex="auto">
-                    <Input prefix={<SafetyCertificateOutlined />} placeholder="验证码" />
-                  </Col>
-                  <Col flex="none">
-                    <Button onClick={handleSendEmailCode} disabled={countdown > 0}>
-                      {countdown > 0 ? `${countdown}s` : "获取验证码"}
-                    </Button>
-                  </Col>
-                </Row>
-              </Form.Item>
-
-              <Form.Item
-                name="newPassword"
-                rules={[
-                  { required: true, message: "请输入新密码" },
-                  { min: 6, message: "密码至少6个字符" },
-                ]}
-              >
-                <Input.Password prefix={<LockOutlined />} placeholder="新密码" />
-              </Form.Item>
-
-              <Form.Item
-                name="confirmPassword"
-                dependencies={["newPassword"]}
-                rules={[
-                  { required: true, message: "请确认密码" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("newPassword") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error("两次输入的密码不一致"));
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password prefix={<LockOutlined />} placeholder="确认新密码" />
-              </Form.Item>
-
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  block
-                  className={styles.loginButton}
-                  loading={loading}
+                <Form.Item
+                  name="msgcode"
+                  rules={[
+                    { required: true, message: "请输入验证码" },
+                    { len: 6, message: "验证码应为6位" },
+                  ]}
                 >
-                  重置密码
-                </Button>
-              </Form.Item>
-            </Form>
-          </TabPane>
+                  <Row gutter={8}>
+                    <Col span={16}>
+                      <Input
+                        prefix={<SafetyCertificateOutlined />}
+                        placeholder="请输入验证码"
+                        size="large"
+                      />
+                    </Col>
+                    <Col span={8}>
+                      <Button block disabled={countdown > 0} onClick={sendSmsCode} size="large">
+                        {countdown > 0 ? `${countdown}秒后重试` : "获取验证码"}
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form.Item>
 
-          <div className={styles.footer}>
+                <Form.Item
+                  name="newPassword"
+                  rules={[
+                    { required: true, message: "请输入新密码" },
+                    { min: 6, message: "密码至少6位" },
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="请输入新密码"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="confirmPassword"
+                  rules={[
+                    { required: true, message: "请确认新密码" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("newPassword") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error("两次输入的密码不一致"));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="请确认新密码"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    loading={loading}
+                    size="large"
+                    className={styles.submitButton}
+                  >
+                    重置密码
+                  </Button>
+                </Form.Item>
+              </Form>
+            </TabPane>
+
+            <TabPane tab="邮箱重置" key="email">
+              <Form
+                form={emailForm}
+                name="email_reset"
+                onFinish={handleEmailReset}
+                layout="vertical"
+              >
+                <Form.Item
+                  name="email"
+                  rules={[
+                    { required: true, message: "请输入邮箱" },
+                    { type: "email", message: "邮箱格式不正确" },
+                  ]}
+                >
+                  <Input prefix={<MailOutlined />} placeholder="请输入邮箱" size="large" />
+                </Form.Item>
+
+                <Form.Item
+                  name="msgcode"
+                  rules={[
+                    { required: true, message: "请输入验证码" },
+                    { len: 6, message: "验证码应为6位" },
+                  ]}
+                >
+                  <Row gutter={8}>
+                    <Col span={16}>
+                      <Input
+                        prefix={<SafetyCertificateOutlined />}
+                        placeholder="请输入验证码"
+                        size="large"
+                      />
+                    </Col>
+                    <Col span={8}>
+                      <Button block disabled={countdown > 0} onClick={sendEmailCode} size="large">
+                        {countdown > 0 ? `${countdown}秒后重试` : "获取验证码"}
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form.Item>
+
+                <Form.Item
+                  name="newPassword"
+                  rules={[
+                    { required: true, message: "请输入新密码" },
+                    { min: 6, message: "密码至少6位" },
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="请输入新密码"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="confirmPassword"
+                  rules={[
+                    { required: true, message: "请确认新密码" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("newPassword") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error("两次输入的密码不一致"));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="请确认新密码"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    loading={loading}
+                    size="large"
+                    className={styles.submitButton}
+                  >
+                    重置密码
+                  </Button>
+                </Form.Item>
+              </Form>
+            </TabPane>
+          </Tabs>
+
+          <div className={styles.formFooter}>
             <Link to="/login">返回登录</Link>
           </div>
-        </Tabs>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

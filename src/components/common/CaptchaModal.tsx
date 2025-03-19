@@ -52,7 +52,7 @@ const CaptchaModal: React.FC<CaptchaModalProps> = ({
     if (!visible) {
       requestedRef.current = false;
     }
-  }, [visible]);
+  }, [visible, captchaData]);
 
   // 验证处理
   const handleVerify = async () => {

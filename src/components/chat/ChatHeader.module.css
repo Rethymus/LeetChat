@@ -1,0 +1,32 @@
+.header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e8e8e8;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+}
+
+.titleContainer {
+  margin-left: 12px;
+}
+
+.title {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.status {
+  color: #52c41a;
+  font-size: 12px;
+}
+
+.typing {
+  color: #1890ff;
+  font-size: 12px;
+}

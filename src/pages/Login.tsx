@@ -90,9 +90,9 @@ const Login: React.FC = () => {
       initialRenderRef.current = false;
       captchaRequestedRef.current = true;
 
-      // 确保请求间隔至少3秒
+      // 确保请求间隔至少5秒
       const now = Date.now();
-      if (now - lastRequestTimeRef.current > 3000) {
+      if (now - lastRequestTimeRef.current > 5000) {
         lastRequestTimeRef.current = now;
 
         // 延迟请求，避免可能的渲染冲突

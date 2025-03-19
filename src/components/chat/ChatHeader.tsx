@@ -1,40 +1,33 @@
-import * as React from "react";
-import { Typography, Space, Avatar } from "antd";
-import { UserOutlined, TeamOutlined } from "@ant-design/icons";
-import styles from "./ChatWindow.module.css";
-import { User } from "../../types"; // 导入User类型
-
-interface Chat {
-  id: string;
-  name?: string;
-  avatar?: string;
-  type: "private" | "group";
-  members: User[]; // 替换any[]为User[]
-  createdAt: string;
-  updatedAt: string;
-}
+import React from "react";
+import { Avatar, Badge } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import styles from "./ChatHeader.module.css";
 
 interface ChatHeaderProps {
-  chat: Chat;
+  title: string;
+  avatar?: string;
+  online?: boolean;
+  typing?: boolean;
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ chat }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({
+  title,
+  avatar,
+  online = false,
+  typing = false,
+}) => {
   return (
-    <div className={styles.chatHeaderContainer}>
-      <Space>
-        <Avatar
-          src={chat.avatar}
-          icon={chat.type === "private" ? <UserOutlined /> : <TeamOutlined />}
-        />
-        <Typography.Title level={5} style={{ margin: 0 }}>
-          {chat.name}
-          {chat.type === "group" && (
-            <span style={{ fontSize: "13px", color: "#999", marginLeft: "8px" }}>
-              ({chat.members.length}人)
-            </span>
-          )}
-        </Typography.Title>
-      </Space>
+    <div className={styles.header}>
+      <div className={styles.userInfo}>
+        <Badge dot={online} color="green" offset={[-5, 5]}>
+          <Avatar src={avatar} icon={<UserOutlined />} />
+        </Badge>
+        <div className={styles.titleContainer}>
+          <div className={styles.title}>{title}</div>
+          {typing && <div className={styles.typing}>正在输入...</div>}
+          {!typing && online && <div className={styles.status}>在线</div>}
+        </div>
+      </div>
     </div>
   );
 };
